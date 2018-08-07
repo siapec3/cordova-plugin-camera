@@ -158,7 +158,7 @@ public class AppCameraSm extends CustomLayout {
 
 
     public void botaoTirarFoto() {
-        CustomLayout.captureButton = criarImageButton("obturador2", "button1");
+        CustomLayout.captureButton = criarImageButton("obturador", "button1");
 //        CustomLayout.captureButton = (ImageButton) findViewById(android.R.id.button1);
         onClickFoto(CustomLayout.captureButton);
         CustomLayout.captureButton.setBackground(null);
