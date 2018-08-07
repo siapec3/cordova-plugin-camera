@@ -1,4 +1,4 @@
-package org.apache.cordova.camera;
+package smsgi.com.br.cameraapp;
 
 /**
  * Created by desenvolvimento10 on 04/07/18.

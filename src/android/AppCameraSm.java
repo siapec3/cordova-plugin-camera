@@ -1,13 +1,15 @@
-package org.apache.cordova.camera;
+package smsgi.com.br.cameraapp;
 
 import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -20,8 +22,11 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
+import org.apache.cordova.camera.CustomLayout;
 
+import smsgi.com.br.cameraapp.reflect.Meta;
 import android.hardware.Camera.Parameters;
+import android.hardware.Camera.Size;
 
 /**
  * Created by desenvolvimento10 on 03/07/18.
@@ -99,6 +104,20 @@ public class AppCameraSm extends CustomLayout {
         });
     }
 
+
+
+    public void onClickFoto(ImageView button) {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                captureButton.setVisibility(View.INVISIBLE);
+                botaoExcluir();
+                mCamera.takePicture(null, null, mPicture);
+                linhaDeAcoes.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
     private void initialize(Context context) {
 
         dialog = new Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
@@ -120,41 +139,40 @@ public class AppCameraSm extends CustomLayout {
         dialog.setContentView(layoutPrincipal);
         dialog.setCancelable(false);
         dialog.show();
-//        activity.setContentView(activity.getResources().getIdentifier("app_camera_activity", "layout", getPackageName()));
-//        activity.setContentView(Meta.getResId(activity, "layout", "app_camera_activity"));
+//        layoutPrincipal.setContentView(activity.getResources().getIdentifier("cordova_camera_plugin", "layout", getPackageName()));
+//        layoutPrincipal.setContentView(Meta.getResId(activity, "layout", "cordova_camera_plugin"));
     }
 
     public void linhaDeComandos() {
-        botoesDeAcao = new LinearLayout(activity);
-        getLinearResourcesById("custom", "id", botoesDeAcao);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        botoesDeAcao.setVisibility(View.INVISIBLE);
-        botoesDeAcao.setBackground(null);
-        botoesDeAcao.setBaselineAligned(true);
-        botoesDeAcao.setLayoutParams(lp);
+        linhaDeAcoes = new LinearLayout(activity);
+        LinearLayout.LayoutParams lllp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lllp.gravity = Gravity.BOTTOM;
+        getLinearResourcesById("custom", "id", linhaDeAcoes);
+        linhaDeAcoes.setVisibility(View.INVISIBLE);
+        linhaDeAcoes.setBackgroundColor(Color.BLACK);
+        linhaDeAcoes.setBaselineAligned(true);
+        linhaDeAcoes.setLayoutParams(lllp);
 
         botaoConfirmacao();
-        botaoExcluir();
     }
 
-    public void onClickFoto(ImageView button) {
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                captureButton.setVisibility(View.INVISIBLE);
-                mCamera.takePicture(null, null, mPicture);
-                botoesDeAcao.setVisibility(View.VISIBLE);
-            }
-        });
-    }
 
     public void botaoTirarFoto() {
-        CustomLayout.captureButton = criarImageButton("camera", "button1");
+        CustomLayout.captureButton = criarImageButton("obturador2", "button1");
+//        CustomLayout.captureButton = (ImageButton) findViewById(android.R.id.button1);
         onClickFoto(CustomLayout.captureButton);
-        layoutPrincipal.addView(CustomLayout.captureButton);
+        CustomLayout.captureButton.setBackground(null);
+        LinearLayout linearLayout = new LinearLayout(activity);
+        LinearLayout.LayoutParams lllp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lllp.gravity = Gravity.BOTTOM;
+        lllp.setMargins(30,0,0,30);
+        CustomLayout.captureButton.setLayoutParams(lllp);
+        linearLayout.addView(CustomLayout.captureButton);
+        layoutPrincipal.addView(linearLayout);
     }
 
     public void botaoConfirmacao() {
+
         CustomLayout.confirm = criarImageButton("confirm", "button2");
         CustomLayout.confirm.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -176,23 +194,22 @@ public class AppCameraSm extends CustomLayout {
                         dialog.dismiss();
                         dialog = null;
                         getView.setVisibility(View.VISIBLE);
-                        callbackErrorPluginCordova();
+//                        callbackErrorPluginCordova();
                     }
 //                        System.exit(1);
                 }
                 return;
             }
         });
-        layoutPrincipal.addView(botoesDeAcao);
-        botoesDeAcao.addView(CustomLayout.confirm);
+
+        linhaDeAcoes.addView(CustomLayout.confirm);
+        layoutPrincipal.addView(linhaDeAcoes);
     }
 
     public void botaoExcluir() {
+        // construcao do GRID para o layout dos botoes excluir e salvar
+
         CustomLayout.exclude = criarImageButton("trash", "button3");
-        progress = new ProgressBar(webView.getContext());
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-        progress.setLayoutParams(lp);
         CustomLayout.exclude.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 file.delete();
@@ -216,9 +233,10 @@ public class AppCameraSm extends CustomLayout {
                         layoutPrincipal.addView(mPreview);
                         linhaDeComandos();
                         botaoTirarFoto();
+//                        callbackErrorPluginCordova();
                         layoutPrincipal.removeView(progress);
                     }
-                    botoesDeAcao.setVisibility(View.INVISIBLE);
+                    linhaDeAcoes.setVisibility(View.INVISIBLE);
                     CustomLayout.captureButton.setVisibility(View.VISIBLE);
                 } catch (IllegalArgumentException e) {
                     Log.d(TAG, "retornar a camera" + e.getMessage().toString());
@@ -226,7 +244,7 @@ public class AppCameraSm extends CustomLayout {
                 }
             }
         });
-        botoesDeAcao.addView(CustomLayout.exclude);
+        linhaDeAcoes.addView(CustomLayout.exclude);
     }
 
 

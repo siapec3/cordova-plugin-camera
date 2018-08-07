@@ -19,7 +19,7 @@
     under the License.
  */
 
-package org.apache.cordova.camera;
+package smsgi.com.br.cameraapp.reflect;
 
 import android.content.Context;
 import android.content.res.Resources;

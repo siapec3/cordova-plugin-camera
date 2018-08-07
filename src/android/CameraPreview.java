@@ -1,15 +1,15 @@
-package org.apache.cordova.camera;
+package smsgi.com.br.cameraapp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.hardware.Camera;
 import android.util.Log;
+import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 import android.view.View;
-
-import org.apache.cordova.camera.AppCameraSm;
+import android.widget.ImageButton;
 
 import java.io.IOException;
 
@@ -58,12 +58,12 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         }
         //tamanho do preview, resize, rotacao ou reformatacao da imagem
         if (this.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
-            mCamera.setDisplayOrientation(0);
+            mCamera.setDisplayOrientation(90);
             AppCameraSm.captureButton.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
             AppCameraSm.exclude.setLayoutDirection(0);
             AppCameraSm.confirm.setLayoutDirection(0);
         } else {
-            mCamera.setDisplayOrientation(90);
+            mCamera.setDisplayOrientation(0);
             AppCameraSm.captureButton.setLayoutDirection(90);
             AppCameraSm.exclude.setLayoutDirection(90);
             AppCameraSm.confirm.setLayoutDirection(90);

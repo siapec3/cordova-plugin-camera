@@ -1,7 +1,9 @@
-package org.apache.cordova.camera;
+package smsgi.com.br.cameraapp;
 
 import android.app.Activity;
 import android.os.Bundle;
+
+import smsgi.com.br.cameraapp.reflect.Meta;
 
 /**
  * Created by desenvolvimento10 on 03/07/18.

@@ -1,4 +1,4 @@
-package org.apache.cordova.camera;
+package smsgi.com.br.cameraapp;
 
 import android.os.AsyncTask;
 import android.view.View;

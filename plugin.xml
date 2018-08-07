@@ -71,19 +71,30 @@
           </provider>
         </config-file>
 
-        <source-file src="src/android/AppCameraSm.java" target-dir="src/org/apache/cordova/camera" />
+        <source-file src="src/android/AppCameraSm.java" target-dir="src/smsgi.com.br.cameraapp" />
         <source-file src="src/android/CameraLauncher.java" target-dir="src/org/apache/cordova/camera" />
-        <source-file src="src/android/CameraPreview.java" target-dir="src/org/apache/cordova/camera" />
-        <source-file src="src/android/CameraWorker.java" target-dir="src/org/apache/cordova/camera" />
+        <source-file src="src/android/CameraPreview.java" target-dir="src/smsgi.com.br.cameraapp" />
+        <source-file src="src/android/CameraWorker.java" target-dir="src/smsgi.com.br.cameraapp" />
         <source-file src="src/android/CustomLayout.java" target-dir="src/org/apache/cordova/camera" />
-        <source-file src="src/android/GaleriaImagens.java" target-dir="src/org/apache/cordova/camera" />
-        <source-file src="src/android/OnEventListener.java" target-dir="src/org/apache/cordova/camera" />
-        <source-file src="src/android/Meta.java" target-dir="src/org/apache/cordova/camera" />
+        <source-file src="src/android/GaleriaImagens.java" target-dir="src/smsgi.com.br.cameraapp" />
+        <source-file src="src/android/OnEventListener.java" target-dir="src/smsgi.com.br.cameraapp" />
+        <source-file src="src/android/Meta.java" target-dir="src/smsgi.com.br.cameraapp.reflect" />
         <source-file src="src/android/CordovaUri.java" target-dir="src/org/apache/cordova/camera" />
         <source-file src="src/android/FileHelper.java" target-dir="src/org/apache/cordova/camera" />
         <source-file src="src/android/ExifHelper.java" target-dir="src/org/apache/cordova/camera" />
         <source-file src="src/android/FileProvider.java" target-dir="src/org/apache/cordova/camera" />
         <source-file src="src/android/xml/camera_provider_paths.xml" target-dir="res/xml" />
+        <source-file src="src/android/xml/camera.xml" target-dir="res/drawable" />
+        <source-file src="src/android/xml/confirm.xml" target-dir="res/drawable" />
+        <source-file src="src/android/xml/obturador.xml" target-dir="res/drawable" />
+        <source-file src="src/android/xml/obturador2.png" target-dir="res/drawable" />
+        <source-file src="src/android/xml/trash.xml" target-dir="res/drawable" />
+
+        <source-file src="src/android/xml/camera.xml" target-dir="res/drawable-port-xhdpi" />
+        <source-file src="src/android/xml/confirm.xml" target-dir="res/drawable-port-xhdpi" />
+        <source-file src="src/android/xml/obturador.xml" target-dir="res/drawable-port-xhdpi" />
+        <source-file src="src/android/xml/obturador2.png" target-dir="res/drawable-port-xhdpi" />
+        <source-file src="src/android/xml/trash.xml" target-dir="res/drawable-port-xhdpi" />
 
         <js-module src="www/CameraPopoverHandle.js" name="CameraPopoverHandle">
             <clobbers target="CameraPopoverHandle" />

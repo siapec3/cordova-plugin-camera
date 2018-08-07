@@ -10,7 +10,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
-
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -18,12 +17,6 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-
-import java.io.ByteArrayOutputStream;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import android.hardware.Camera.Size;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -36,12 +29,20 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
+
+import smsgi.com.br.cameraapp.AppCameraSm;
+import smsgi.com.br.cameraapp.CameraPreview;
+import smsgi.com.br.cameraapp.CameraWorker;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 
@@ -62,7 +63,7 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
     protected CameraPreview mPreview;
     protected File file;
     protected Activity activity;
-    protected LinearLayout botoesDeAcao;
+    protected LinearLayout linhaDeAcoes;
     protected FrameLayout layoutPrincipal;
     protected ImageView capturedImageHolder;
     protected FrameLayout.LayoutParams layoutParams;
@@ -204,6 +205,7 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
 
 
     protected Camera.PictureCallback mPicture = new Camera.PictureCallback() {
+
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
             getOutputMediaFile(MEDIA_TYPE_IMAGE);
@@ -214,26 +216,26 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
             try {
                 FileOutputStream fos = new FileOutputStream(file);
                 Bitmap realImage = BitmapFactory.decodeByteArray(data, 0, data.length);
+                ExifInterface exif = new ExifInterface(file.toString());
 
-                ExifInterface exif=new ExifInterface(file.toString());
-
-                Log.d("EXIF value", exif.getAttribute(ExifInterface.TAG_ORIENTATION));
-                if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("6")){
-                    realImage= rotate(realImage, 90);
-                } else if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("8")){
-                    realImage= rotate(realImage, 270);
-                } else if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("3")){
-                    realImage= rotate(realImage, 180);
-                } else if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("0")){
-                    realImage= rotate(realImage, 90);
+                Log.d("Exif value", exif.getAttribute(ExifInterface.TAG_ORIENTATION));
+                if (exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("6")) {
+                    realImage = rotate(realImage, 90);
+                } else if (exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("8")) {
+                    realImage = rotate(realImage, 270);
+                } else if (exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("3")) {
+                    realImage = rotate(realImage, 180);
+                } else if (exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("0")) {
+                    realImage = rotate(realImage, 90);
                 }
+
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 boolean bo = realImage.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-
                 byte[] bitmapdata = bos.toByteArray();
 
                 fos.write(bitmapdata);
                 fos.close();
+                worker.mCallBack.onSuccess(getFile());
             } catch (FileNotFoundException e) {
                 Log.d(TAG, "Arquivo nao encontrado " + e.getMessage());
             } catch (IOException ex) {
@@ -242,16 +244,35 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
         }
     };
 
-
-    private static Bitmap rotate(Bitmap bitmap, int degree) {
+    private static Bitmap rotate(Bitmap bitmap, int degree){
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
 
         Matrix mtx = new Matrix();
-        //       mtx.postRotate(degree);
         mtx.setRotate(degree);
+        return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx,true);
+    }
 
-        return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx, true);
+    protected Camera.Size getSmallestPictureSize(Camera.Parameters parameters) {
+        List<Camera.Size> list = parameters.getSupportedPictureSizes();
+        Collections.sort(list, new AreasComparator());
+
+        return list.get(1); // I choose the second one becasue the first one is too small.
+    }
+
+    public class AreasComparator implements Comparator<Camera.Size> {
+        @Override
+        public int compare(Camera.Size s1, Camera.Size s2) {
+
+            int resultArea=s1.width * s1.height;
+            int newArea=s2.width * s2.height;
+
+            if (newArea < resultArea) {
+                return 1;
+            }
+
+            return -1;
+        }
     }
 
 
@@ -270,16 +291,9 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
         // Create the cache directory if it doesn't exist
         cache.mkdirs();
         cache.getAbsolutePath();
+        // setFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"IMG_"+timeStamp+".jpg"));
+       setFile(new File(cache.getAbsolutePath(), "IMG_" + timeStamp + ".jpg")); //Ira funcionar dessa forma mas para testar o formato da imagem preciso ver como fica
 
-        setFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"IMG_"+timeStamp+".jpg"));
-//        setFile(new File(cache.getAbsolutePath(), "IMG_" + timeStamp + ".jpg")); Ira funcionar dessa forma mas para testar o formato da imagem preciso ver como fica
-    }
-
-    protected Camera.Size getSmallestPictureSize(Camera.Parameters parameters) {
-        List<Size> list = parameters.getSupportedPictureSizes();
-        Collections.sort(list, new AreasComparator());
-
-        return list.get(1); // I choose the second one becasue the first one is too small.
     }
 
     @Override
@@ -292,22 +306,4 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
         this.file = file;
     }
 
-    public class AreasComparator implements Comparator<Camera.Size> {
-        @Override
-        public int compare(Camera.Size s1, Camera.Size s2) {
-
-            int resultArea=s1.width * s1.height;
-            int newArea=s2.width * s2.height;
-
-            if (newArea < resultArea) {
-                return 1;
-            }
-
-            return -1;
-        }
-    }
-
 }
-
-
-
