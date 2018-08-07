@@ -62,6 +62,9 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import smsgi.com.br.cameraapp.CameraWorker;
+import smsgi.com.br.cameraapp.OnEventListener;
+
 /**
  * This class launches the camera view, allows the user to take a picture, closes the camera view,
  * and returns the captured image.  When the camera view is closed, the screen displayed before
