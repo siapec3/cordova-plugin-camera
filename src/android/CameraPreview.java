@@ -59,14 +59,8 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         //tamanho do preview, resize, rotacao ou reformatacao da imagem
         if (this.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
             mCamera.setDisplayOrientation(90);
-            AppCameraSm.captureButton.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-            AppCameraSm.exclude.setLayoutDirection(0);
-            AppCameraSm.confirm.setLayoutDirection(0);
         } else {
             mCamera.setDisplayOrientation(0);
-            AppCameraSm.captureButton.setLayoutDirection(90);
-            AppCameraSm.exclude.setLayoutDirection(90);
-            AppCameraSm.confirm.setLayoutDirection(90);
         }
         try {
             mCamera.setPreviewDisplay(mHolder);
