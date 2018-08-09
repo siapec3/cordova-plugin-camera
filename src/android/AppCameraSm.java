@@ -233,3 +233,6 @@ public class AppCameraSm extends CustomLayout {
         });
         linhaDeAcoes.addView(CustomLayout.exclude);
     }
+
+
+}
