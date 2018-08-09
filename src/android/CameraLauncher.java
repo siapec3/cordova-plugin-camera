@@ -62,9 +62,6 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import smsgi.com.br.cameraapp.CameraWorker;
-import smsgi.com.br.cameraapp.OnEventListener;
-
 /**
  * This class launches the camera view, allows the user to take a picture, closes the camera view,
  * and returns the captured image.  When the camera view is closed, the screen displayed before
@@ -273,7 +270,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
      * @param encodingType Compression quality hint (0-100: 0=low quality & high compression, 100=compress of max quality)
      */
     public void callTakePicture(int returnType, final int encodingType) {
-       // PermissionHelper.requestPermissions(this, TAKE_PIC_SEC, permissions);
+        // PermissionHelper.requestPermissions(this, TAKE_PIC_SEC, permissions);
         boolean saveAlbumPermission = PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 && PermissionHelper.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         boolean takePicturePermission = PermissionHelper.hasPermission(this, Manifest.permission.CAMERA);
@@ -319,7 +316,10 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
                 @Override
                 public void onFailure(Exception e) {
-                    Toast.makeText(cordova.getActivity(), "ERROR: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(cordova.getActivity(), "MSG: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    callbackContext.error("Illegal Argument Exception" + PluginResult.Status.ERROR);
+                    PluginResult r = new PluginResult(PluginResult.Status.ERROR);
+                    callbackContext.sendPluginResult(r);
                 }
             }, encodingType, callbackContext);
             cameraWorker.execute();

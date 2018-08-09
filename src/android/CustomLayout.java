@@ -40,10 +40,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import smsgi.com.br.cameraapp.AppCameraSm;
-import smsgi.com.br.cameraapp.CameraPreview;
-import smsgi.com.br.cameraapp.CameraWorker;
-
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 
 /**
@@ -71,7 +67,7 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
     protected ProgressBar progress;
     protected CameraWorker myCallbackClass;
     protected CallbackContext callbackContext;
-    private CameraWorker worker;
+    protected CameraWorker worker;
     /**
      * @param cordovaInterface
      * @param viewGet
@@ -87,24 +83,46 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
         worker.registerCallback(this);
     }
 
+    protected void mostrarObturador(){
+        linhaDeAcoes.setVisibility(View.INVISIBLE);
+        CustomLayout.captureButton.setVisibility(View.VISIBLE);
+    }
+
+    protected void mostrarBarraDeFerramentas(){
+        linhaDeAcoes.setVisibility(View.VISIBLE);
+        CustomLayout.captureButton.setVisibility(View.INVISIBLE);
+    }
+
     protected void callbackErrorPluginCordova(){
         callbackContext.error("Illegal Argument Exception" + PluginResult.Status.ERROR);
         PluginResult r = new PluginResult(PluginResult.Status.ERROR);
         callbackContext.sendPluginResult(r);
+        if (file.isFile())  file.delete(); else  Log.d(TAG, ">>>>>>>>>>>>>>>>  nenhum arquivo encontrado ");
+        worker.mCallBack.onFailure(new Exception("Imagem não selecionada"));
         return;
     }
 
     // Helper to be compile-time compatible with both Cordova 3.x and 4.x.
     protected static Camera getCameraInstance() {
-
         Camera c = null;
         try {
             c = Camera.open();
             Camera.Parameters params = c.getParameters();
+            List<Camera.Size> previewSizes = params.getSupportedPreviewSizes();
             params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-            params.setPictureSize(1024, 768);
+//            params.setPictureSize(640, 480);
+            // You need to choose the most appropriate previewSize for your app
+            int w = 0; int h = 0;
+            for (int i=0; i < previewSizes.size(); i++) {
+                Log.d(TAG, ">>>>>>>>>>>>>>>>  getCameraInstance Width x Heigth " + previewSizes.get(i).width +" x "+ previewSizes.get(i).height);
+                w = ( w < previewSizes.get(i).width)?  previewSizes.get(i).width : w ;
+                h = ( h < previewSizes.get(i).height)?  previewSizes.get(i).height : h ;
+            }
+            Log.d(TAG, ">>>>>>>>>>>>>>>>  getCameraInstance " + w +"x"+ h);
+            params.setPictureSize(w, h);
+            params.setPreviewSize(w, h);
             c.setParameters(params);
-            Log.d(TAG, "camera ok ");
+            Log.d(TAG, "camera ok getCameraInstance: " + c);
         } catch (Exception e) {
             Log.e(TAG, "camera nao disponivel " + e);
         }
@@ -238,8 +256,10 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
                 worker.mCallBack.onSuccess(getFile());
             } catch (FileNotFoundException e) {
                 Log.d(TAG, "Arquivo nao encontrado " + e.getMessage());
+                worker.mCallBack.onFailure(e);
             } catch (IOException ex) {
                 Log.d(TAG, "Error acessando o arquivo: " + ex.getMessage());
+                worker.mCallBack.onFailure(ex);
             }
         }
     };
@@ -292,13 +312,13 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
         cache.mkdirs();
         cache.getAbsolutePath();
         // setFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"IMG_"+timeStamp+".jpg"));
-       setFile(new File(cache.getAbsolutePath(), "IMG_" + timeStamp + ".jpg")); //Ira funcionar dessa forma mas para testar o formato da imagem preciso ver como fica
+        setFile(new File(cache.getAbsolutePath(), "IMG_" + timeStamp + ".jpg")); //Ira funcionar dessa forma mas para testar o formato da imagem preciso ver como fica
 
     }
 
     @Override
     public File getFile() {
-        return file;
+        return this.file;
     }
 
     @Override

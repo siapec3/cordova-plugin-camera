@@ -1,4 +1,4 @@
-package smsgi.com.br.cameraapp;
+package org.apache.cordova.camera;
 
 import android.Manifest;
 import android.app.Dialog;
@@ -15,18 +15,13 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
-import org.apache.cordova.camera.CustomLayout;
 
-import smsgi.com.br.cameraapp.reflect.Meta;
 import android.hardware.Camera.Parameters;
-import android.hardware.Camera.Size;
 
 /**
  * Created by desenvolvimento10 on 03/07/18.
@@ -82,8 +77,6 @@ public class AppCameraSm extends CustomLayout {
                 capturedImageHolder = new ImageView(activity);
                 getResourcesById("list", "id", capturedImageHolder);
                 layoutPrincipal.addView(capturedImageHolder);
-
-                onClickFoto(capturedImageHolder);
                 // Get reference to display
                 Display display = activity.getWindowManager().getDefaultDisplay();
                 Context context = AppCameraSm.webView.getContext();
@@ -95,7 +88,7 @@ public class AppCameraSm extends CustomLayout {
                     layoutPrincipal.addView(mPreview);
 
                     linhaDeComandos();
-                    botaoTirarFoto();
+                    botaoObturador();
 
                     initialize(context);
                 }
@@ -153,11 +146,11 @@ public class AppCameraSm extends CustomLayout {
         linhaDeAcoes.setBaselineAligned(true);
         linhaDeAcoes.setLayoutParams(lllp);
 
-        botaoConfirmacao();
+        botaoSalvar();
     }
 
 
-    public void botaoTirarFoto() {
+    public void botaoObturador() {
         CustomLayout.captureButton = criarImageButton("obturador", "button1");
 //        CustomLayout.captureButton = (ImageButton) findViewById(android.R.id.button1);
         onClickFoto(CustomLayout.captureButton);
@@ -165,13 +158,13 @@ public class AppCameraSm extends CustomLayout {
         LinearLayout linearLayout = new LinearLayout(activity);
         LinearLayout.LayoutParams lllp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         lllp.gravity = Gravity.BOTTOM;
-        lllp.setMargins(30,0,0,30);
+        lllp.setMargins(20,0,0,30);
         CustomLayout.captureButton.setLayoutParams(lllp);
         linearLayout.addView(CustomLayout.captureButton);
         layoutPrincipal.addView(linearLayout);
     }
 
-    public void botaoConfirmacao() {
+    public void botaoSalvar() {
 
         CustomLayout.confirm = criarImageButton("confirm", "button2");
         CustomLayout.confirm.setOnClickListener(new View.OnClickListener() {
@@ -182,19 +175,13 @@ public class AppCameraSm extends CustomLayout {
                     if (mCamera != null) {
                         mCamera = null;
                     }
-                    mCamera = getCameraInstance();
-                    layoutPrincipal.removeAllViews();
-                    capturedImageHolder = new ImageView(cordova.getActivity());
-                    layoutPrincipal.addView(capturedImageHolder);
-                    mPreview = new CameraPreview(activity, mCamera);
-                    layoutPrincipal.addView(mPreview);
-                    linhaDeComandos();
-                    botaoTirarFoto();
+
                     if (dialog != null && dialog.isShowing()) {
                         dialog.dismiss();
                         dialog = null;
                         getView.setVisibility(View.VISIBLE);
 //                        callbackErrorPluginCordova();
+//                        worker.mCallBack.onSuccess(getFile());
                     }
 //                        System.exit(1);
                 }
@@ -232,7 +219,7 @@ public class AppCameraSm extends CustomLayout {
                         mPreview = new CameraPreview(activity, mCamera);
                         layoutPrincipal.addView(mPreview);
                         linhaDeComandos();
-                        botaoTirarFoto();
+                        botaoObturador();
 //                        callbackErrorPluginCordova();
                         layoutPrincipal.removeView(progress);
                     }
