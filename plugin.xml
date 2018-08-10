@@ -84,7 +84,7 @@
         <source-file src="src/android/AppCameraSm.java" target-dir="src/smsgi.com.br.cameraapp" />
         <source-file src="src/android/CameraPreview.java" target-dir="src/smsgi.com.br.cameraapp" />
         <source-file src="src/android/CameraWorker.java" target-dir="src/smsgi.com.br.cameraapp" />
-        <source-file src="src/android/CustomLayout.java" target-dir="src/org/apache/cordova/camera" />
+        <source-file src="src/android/CustomLayout.java" target-dir="src/smsgi.com.br.cameraapp" />
         <source-file src="src/android/GaleriaImagens.java" target-dir="src/smsgi.com.br.cameraapp" />
         <source-file src="src/android/OnEventListener.java" target-dir="src/smsgi.com.br.cameraapp" />
         <source-file src="src/android/Meta.java" target-dir="src/smsgi.com.br.cameraapp.reflect" />
