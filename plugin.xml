@@ -171,7 +171,7 @@
         <source-file src="src/android/xml/camera.xml" target-dir="res/drawable-anydpi" />
         <source-file src="src/android/xml/confirm.xml" target-dir="res/drawable-anydpi" />
         <source-file src="src/android/xml/obturador.xml" target-dir="res/drawable-anydpi" />
-        <source-file src="src/android/xml/obturador2.png" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/paperfly_send.xml" target-dir="res/drawable-anydpi" />
         <source-file src="src/android/xml/trash.xml" target-dir="res/drawable-anydpi" />
 
         <js-module src="www/CameraPopoverHandle.js" name="CameraPopoverHandle">

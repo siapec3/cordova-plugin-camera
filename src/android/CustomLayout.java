@@ -1,4 +1,4 @@
-package org.apache.cordova.camera;
+package smsgi.com.br.cameraapp;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
@@ -17,12 +18,15 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -46,7 +50,7 @@ import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
  * Created by desenvolvimento10 on 03/07/18.
  */
 
-public class CustomLayout extends AppCompatActivity implements CameraWorker.CameraCallBack {
+public abstract class CustomLayout extends AppCompatActivity implements CameraWorker.CameraCallBack {
 
     public static ImageButton captureButton;
     public static ImageButton confirm;
@@ -64,10 +68,12 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
     protected ImageView capturedImageHolder;
     protected FrameLayout.LayoutParams layoutParams;
     protected Dialog dialog;
+    protected Dialog newdialog;
     protected ProgressBar progress;
-    protected CameraWorker myCallbackClass;
     protected CallbackContext callbackContext;
     protected CameraWorker worker;
+    private FrameLayout previewLayout;
+    private ProgressBar andamentoProcesso;
     /**
      * @param cordovaInterface
      * @param viewGet
@@ -110,6 +116,7 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
             Camera.Parameters params = c.getParameters();
             List<Camera.Size> previewSizes = params.getSupportedPreviewSizes();
             params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+            params.setPictureFormat(ImageFormat.JPEG);
 //            params.setPictureSize(640, 480);
             // You need to choose the most appropriate previewSize for your app
             int w = 0; int h = 0;
@@ -253,7 +260,9 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
 
                 fos.write(bitmapdata);
                 fos.close();
-                worker.mCallBack.onSuccess(getFile());
+                preVisualizacao(activity);
+                layoutPrincipal.removeAllViews();
+//                worker.mCallBack.onSuccess(getFile());
             } catch (FileNotFoundException e) {
                 Log.d(TAG, "Arquivo nao encontrado " + e.getMessage());
                 worker.mCallBack.onFailure(e);
@@ -264,6 +273,71 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
         }
     };
 
+
+
+    protected void preVisualizacao(Context context) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                previewLayout = new FrameLayout(activity);
+                andamentoProcesso = processando();
+                previewLayout.addView(andamentoProcesso);
+                newdialog = new Dialog(activity, android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
+                    @Override
+                    public void onBackPressed() {
+                        super.onBackPressed();
+                        dialogDeComandos();
+
+                    }
+                };
+
+                newdialog.setContentView(previewLayout);
+                newdialog.setCancelable(false);
+                newdialog.show();
+                ImageView imagemPreview = new ImageView(activity);
+                imagemPreview.setImageBitmap(BitmapFactory.decodeFile(getFile().getAbsolutePath()));
+                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                previewLayout.setLayoutParams(layoutParams);
+                previewLayout.addView(imagemPreview);
+                enviarFoto();
+                previewLayout.removeView(andamentoProcesso);
+//                barraDeComandosTopo();
+
+            }
+        });
+    }
+
+    private void enviarFoto() {
+        ImageButton enviarFotoButton = criarImageButton("paperfly_send", "button_foto");
+
+        enviarFotoButton.setBackground(null);
+        LinearLayout linearLayout = new LinearLayout(activity);
+        LinearLayout.LayoutParams lllp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        lllp.gravity = Gravity.BOTTOM;
+        lllp.setMargins(0,0,20,60);
+        enviarFotoButton.setLayoutParams(lllp);
+        linearLayout.addView(enviarFotoButton);
+        enviarFotoButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                dialogDeComandos();
+            }
+        });
+        previewLayout.addView(linearLayout);
+    }
+
+    protected abstract void barraDeComandosTopo();
+
+    protected abstract void dialogDeComandos();
+
+    private ProgressBar processando() {
+        ProgressBar progress = new ProgressBar(activity);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+        progress.setLayoutParams(lp);
+        return progress;
+    }
+
     private static Bitmap rotate(Bitmap bitmap, int degree){
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
@@ -273,7 +347,7 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
         return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx,true);
     }
 
-    protected Camera.Size getSmallestPictureSize(Camera.Parameters parameters) {
+    protected Camera.Size getLargestPictureSize(Camera.Parameters parameters) {
         List<Camera.Size> list = parameters.getSupportedPictureSizes();
         Collections.sort(list, new AreasComparator());
 
@@ -287,7 +361,7 @@ public class CustomLayout extends AppCompatActivity implements CameraWorker.Came
             int resultArea=s1.width * s1.height;
             int newArea=s2.width * s2.height;
 
-            if (newArea < resultArea) {
+            if (newArea > resultArea) {
                 return 1;
             }
 
