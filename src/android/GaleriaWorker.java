@@ -9,6 +9,8 @@ import org.apache.cordova.CordovaWebView;
 
 import java.io.File;
 
+import smsgi.com.br.galeriasmview.GaleriaSmView;
+
 /**
  * Created by desenvolvimento10 on 04/07/18.
  */
@@ -33,22 +35,21 @@ public class GaleriaWorker extends AsyncTask<Void, Void, File> {
      * @param type
      * @param callbackContext
      */
-    public GaleriaWorker
-    (CordovaInterface cordovaInterface, View viewGet, CordovaWebView viewWeb, OnEventListener eventListener, int type, CallbackContext callbackContext) {
+    public GaleriaWorker(CordovaInterface cordovaInterface, View viewGet, CordovaWebView viewWeb, OnEventListener eventListener, int type, CallbackContext callbackContext) {
         mCallBack = eventListener;
         encodingType = type;
-        new GaleriaImagensInterface(cordovaInterface, viewGet, viewWeb, this, callbackContext);
+        new GaleriaSmView(cordovaInterface, viewGet, viewWeb, this, callbackContext);
     }
 
-    public interface CameraCallBack {
+    public interface GaleriaCallback {
         void getOutputMediaFile(Integer type);
         File getFile();
         void setFile(File file);
     }
 
-    CameraCallBack myCallbackClass;
+    GaleriaCallback myCallbackClass;
 
-    public void registerCallback(CameraCallBack callbackClass){
+    public void registerCallback(GaleriaCallback callbackClass){
         myCallbackClass = callbackClass;
     }
 

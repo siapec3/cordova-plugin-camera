@@ -88,7 +88,33 @@
         <source-file src="src/android/GaleriaImagens.java" target-dir="src/smsgi/com/br/cameraapp" />
         <source-file src="src/android/OnEventListener.java" target-dir="src/smsgi/com/br/cameraapp" />
         <source-file src="src/android/Meta.java" target-dir="src/smsgi/com/br/cameraapp.reflect" />
+
+        <source-file src="src/android/GaleriaSmView.java" target-dir="src/smsgi/com/br/galeriasmview/GaleriaSmView" />
+        <source-file src="src/android/IconUtils.java" target-dir="src/smsgi/com/br/galeriasmview/IconUtils" />
+        <source-file src="src/android/ListaDeArquivos.java" target-dir="src/smsgi/com/br/galeriasmview/ListaDeArquivos" />
+        <source-file src="src/android/MyAdapter.java" target-dir="src/smsgi/com/br/galeriasmview/MyAdapter" />
+
+
         <source-file src="src/android/xml/camera_provider_paths.xml" target-dir="res/xml" />
+
+        <source-file src="src/android/xml/camera.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/confirm.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/customborder.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/customborder_selecionado.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/document.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/excel.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/folder.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/pdf.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/ppt.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/word.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/obturador.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/paperfly_send.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/trash.xml" target-dir="res/drawable-anydpi" />
+
+        <source-file src="src/android/xml/cell_layout.xml" target-dir="res/layout" />
+        <source-file src="src/android/xml/activity_galeria_sm_view.xml" target-dir="res/layout" />
+        
+        <source-file src="src/android/xml/colors.xml" target-dir="res/values" />
         <!--
         <source-file src="src/android/xml/camera.xml" target-dir="res/drawable" />
         <source-file src="src/android/xml/confirm.xml" target-dir="res/drawable" />
@@ -168,11 +194,6 @@
         <source-file src="src/android/xml/obturador2.png" target-dir="res/drawable-port-xxxhdpi" />
         <source-file src="src/android/xml/trash.xml" target-dir="res/drawable-port-xxxhdpi" />
 -->
-        <source-file src="src/android/xml/camera.xml" target-dir="res/drawable-anydpi" />
-        <source-file src="src/android/xml/confirm.xml" target-dir="res/drawable-anydpi" />
-        <source-file src="src/android/xml/obturador.xml" target-dir="res/drawable-anydpi" />
-        <source-file src="src/android/xml/paperfly_send.xml" target-dir="res/drawable-anydpi" />
-        <source-file src="src/android/xml/trash.xml" target-dir="res/drawable-anydpi" />
 
         <js-module src="www/CameraPopoverHandle.js" name="CameraPopoverHandle">
             <clobbers target="CameraPopoverHandle" />

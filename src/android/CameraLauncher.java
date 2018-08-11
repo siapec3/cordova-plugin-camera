@@ -62,6 +62,10 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import smsgi.com.br.cameraapp.CameraWorker;
+import smsgi.com.br.cameraapp.GaleriaWorker;
+import smsgi.com.br.cameraapp.OnEventListener;
+
 /**
  * This class launches the camera view, allows the user to take a picture, closes the camera view,
  * and returns the captured image.  When the camera view is closed, the screen displayed before
@@ -116,6 +120,11 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
     private ExifHelper exifData;            // Exif data from source
     private String applicationId;
     private File file;
+    // PermissionHelper.requestPermissions(this, TAKE_PIC_SEC, permissions);
+    private boolean saveAlbumPermission = false;
+    private boolean takePicturePermission = false;
+
+
 
 
     //-------------------------------------------
@@ -199,14 +208,20 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
             try {
                 if (this.srcType == CAMERA) {
-                    this.callTakePicture(destType, encodingType);
+
+//                    //Caso seja CAMERA chamar a customizada pela SM
+                    this.callTakePictureCustomizadoSM(destType, encodingType);
+
+                    //Caso seja GALERIA chamar a customizada pela SM
+//                    this.getImageCustimizadaSM(this.srcType, destType, encodingType);
 
                 } else if ((this.srcType == PHOTOLIBRARY) || (this.srcType == SAVEDPHOTOALBUM)) {
                     // FIXME: Stop always requesting the permission
                     if (!PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                         PermissionHelper.requestPermission(this, SAVE_TO_ALBUM_SEC, Manifest.permission.READ_EXTERNAL_STORAGE);
                     } else {
-                        this.getImage(this.srcType, destType, encodingType);
+                        //Caso seja GALERIA chamar a customizada pela SM
+                        this.getImageCustimizadaSM(this.srcType, destType, encodingType);
                     }
                 }
             } catch (IllegalArgumentException e) {
@@ -269,42 +284,14 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
      * @param returnType   Set the type of image to return.
      * @param encodingType Compression quality hint (0-100: 0=low quality & high compression, 100=compress of max quality)
      */
-    public void callTakePicture(int returnType, final int encodingType) {
-        // PermissionHelper.requestPermissions(this, TAKE_PIC_SEC, permissions);
-        boolean saveAlbumPermission = PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                && PermissionHelper.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        boolean takePicturePermission = PermissionHelper.hasPermission(this, Manifest.permission.CAMERA);
-
-        // CB-10120: The CAMERA permission does not need to be requested unless it is declared
-        // in AndroidManifest.xml. This plugin does not declare it, but others may and so we must
-        // check the package info to determine if the permission is present.
-
-        if (!takePicturePermission) {
-            takePicturePermission = true;
-            try {
-                PackageManager packageManager = this.cordova.getActivity().getPackageManager();
-                String[] permissionsInPackage = packageManager.getPackageInfo(this.cordova.getActivity().getPackageName(), PackageManager.GET_PERMISSIONS).requestedPermissions;
-                if (permissionsInPackage != null) {
-                    for (String permission : permissionsInPackage) {
-                        if (permission.equals(Manifest.permission.CAMERA)) {
-                            takePicturePermission = false;
-                            break;
-                        }
-                    }
-                }
-            } catch (NameNotFoundException e) {
-                // We are requesting the info for our package, so this should
-                // never be caught
-            }
-        }
-
+    public void callTakePictureCustomizadoSM(int returnType, final int encodingType) {
+        onRequestPermissionCameraGaleriaSm();
         if (takePicturePermission && saveAlbumPermission) {
-
 //            takePicture(returnType, encodingType);
             LOG.d(TAG, "chamou a cameraPrevisualizacao");
             File photo = createCaptureFile(encodingType);
 
-            CameraWorker cameraWorker = new CameraWorker(cordova, getView(), webView, new OnEventListener<File>() {
+            CameraWorker galeriaWorker = new CameraWorker(cordova, getView(), webView, new OnEventListener<File>() {
                 @Override
                 public void onSuccess(File resultPhoto) {
                     Toast.makeText(cordova.getActivity(), "SM_SUCCESS:::: " + resultPhoto.getAbsolutePath(), Toast.LENGTH_LONG).show();
@@ -322,7 +309,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     callbackContext.sendPluginResult(r);
                 }
             }, encodingType, callbackContext);
-            cameraWorker.execute();
+            galeriaWorker.execute();
         } else if (saveAlbumPermission && !takePicturePermission) {
             PermissionHelper.requestPermission(this, TAKE_PIC_SEC, Manifest.permission.CAMERA);
         } else if (!saveAlbumPermission && takePicturePermission) {
@@ -333,6 +320,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         }
     }
 
+    @Deprecated
     public void takePicture(int returnType, int encodingType) {
         // Save the number of images currently on disk for later
         this.numPics = queryImgDB(whichContentStore()).getCount();
@@ -380,6 +368,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
      * @param fileName     or resultant File object.
      * @return a File object pointing to the temporary picture
      */
+    @Deprecated
     private File createCaptureFile(int encodingType, String fileName) {
         if (fileName.isEmpty()) {
             fileName = ".Pic";
@@ -394,6 +383,42 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         }
 
         return new File(getTempDirectoryPath(), fileName);
+    }
+
+    public void getImageCustimizadaSM(int srcType, int returnType, int encodingType) {
+        onRequestPermissionCameraGaleriaSm();
+        if (takePicturePermission && saveAlbumPermission) {
+//            takePicture(returnType, encodingType);
+            LOG.d(TAG, "chamou a cameraPrevisualizacao");
+            File photo = createCaptureFile(encodingType);
+
+            GaleriaWorker galeriaWorker = new GaleriaWorker(cordova, getView(), webView, new OnEventListener<File>() {
+                @Override
+                public void onSuccess(File resultPhoto) {
+                    Toast.makeText(cordova.getActivity(), "SM_SUCCESS:::: " + resultPhoto.getAbsolutePath(), Toast.LENGTH_LONG).show();
+                    imageUri = new CordovaUri(FileProvider.getUriForFile(cordova.getActivity(),
+                            applicationId + ".provider",
+                            resultPhoto));
+                    onActivityResult();
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(cordova.getActivity(), "MSG: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    callbackContext.error("Illegal Argument Exception" + PluginResult.Status.ERROR);
+                    PluginResult r = new PluginResult(PluginResult.Status.ERROR);
+                    callbackContext.sendPluginResult(r);
+                }
+            }, srcType, callbackContext);
+            galeriaWorker.execute();
+        } else if (saveAlbumPermission && !takePicturePermission) {
+            PermissionHelper.requestPermission(this, TAKE_PIC_SEC, Manifest.permission.CAMERA);
+        } else if (!saveAlbumPermission && takePicturePermission) {
+            PermissionHelper.requestPermissions(this, TAKE_PIC_SEC,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE});
+        } else {
+            PermissionHelper.requestPermissions(this, TAKE_PIC_SEC, permissions);
+        }
     }
 
     /**
@@ -1280,9 +1305,38 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         this.conn.disconnect();
     }
 
+    private void onRequestPermissionCameraGaleriaSm(){
+        // PermissionHelper.requestPermissions(this, TAKE_PIC_SEC, permissions);
+        saveAlbumPermission = PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                && PermissionHelper.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        takePicturePermission = PermissionHelper.hasPermission(this, Manifest.permission.CAMERA);
 
+        // CB-10120: The CAMERA permission does not need to be requested unless it is declared
+        // in AndroidManifest.xml. This plugin does not declare it, but others may and so we must
+        // check the package info to determine if the permission is present.
+
+        if (!takePicturePermission) {
+            takePicturePermission = true;
+            try {
+                PackageManager packageManager = this.cordova.getActivity().getPackageManager();
+                String[] permissionsInPackage = packageManager.getPackageInfo(this.cordova.getActivity().getPackageName(), PackageManager.GET_PERMISSIONS).requestedPermissions;
+                if (permissionsInPackage != null) {
+                    for (String permission : permissionsInPackage) {
+                        if (permission.equals(Manifest.permission.CAMERA)) {
+                            takePicturePermission = false;
+                            break;
+                        }
+                    }
+                }
+            } catch (NameNotFoundException e) {
+                // We are requesting the info for our package, so this should
+                // never be caught
+            }
+        }
+    }
     public void onRequestPermissionResult(int requestCode, String[] permissions,
                                           int[] grantResults) throws JSONException {
+
         for (int r : grantResults) {
             if (r == PackageManager.PERMISSION_DENIED) {
                 this.callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, PERMISSION_DENIED_ERROR));
