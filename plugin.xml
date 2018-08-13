@@ -92,7 +92,7 @@
         <!-- classes galeria customizada -->
         <source-file src="src/android/GaleriaImagensInterface.java" target-dir="src/smsgi/com/br/galeriasmview" />
         <source-file src="src/android/GaleriaSmView.java" target-dir="src/smsgi/com/br/galeriasmview" />
-        <source-file src="src/android/IconsUtils.java" target-dir="src/smsgi/com/br/galeriasmview" />
+        <source-file src="src/android/IconeUtils.java" target-dir="src/smsgi/com/br/galeriasmview" />
         <source-file src="src/android/ListaDeArquivos.java" target-dir="src/smsgi/com/br/galeriasmview" />
         <source-file src="src/android/MyAdapter.java" target-dir="src/smsgi/com/br/galeriasmview" />
 
