@@ -90,10 +90,10 @@
         <source-file src="src/android/Meta.java" target-dir="src/smsgi/com/br/cameraapp.reflect" />
 
         <!-- classes galeria customizada -->
-        <source-file src="src/android/GaleriaSmView.java" target-dir="src/smsgi/com/br/galeriasmview/GaleriaSmView" />
-        <source-file src="src/android/IconUtils.java" target-dir="src/smsgi/com/br/galeriasmview/IconUtils" />
-        <source-file src="src/android/ListaDeArquivos.java" target-dir="src/smsgi/com/br/galeriasmview/ListaDeArquivos" />
-        <source-file src="src/android/MyAdapter.java" target-dir="src/smsgi/com/br/galeriasmview/MyAdapter" />
+        <source-file src="src/android/GaleriaSmView.java" target-dir="src/smsgi/com/br/galeriasmview" />
+        <source-file src="src/android/IconsUtils.java" target-dir="src/smsgi/com/br/galeriasmview" />
+        <source-file src="src/android/ListaDeArquivos.java" target-dir="src/smsgi/com/br/galeriasmview" />
+        <source-file src="src/android/MyAdapter.java" target-dir="src/smsgi/com/br/galeriasmview" />
 
 
         <source-file src="src/android/xml/camera_provider_paths.xml" target-dir="res/xml" />
