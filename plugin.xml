@@ -89,6 +89,7 @@
         <source-file src="src/android/OnEventListener.java" target-dir="src/smsgi/com/br/cameraapp" />
         <source-file src="src/android/Meta.java" target-dir="src/smsgi/com/br/cameraapp.reflect" />
 
+        <!-- classes galeria customizada -->
         <source-file src="src/android/GaleriaSmView.java" target-dir="src/smsgi/com/br/galeriasmview/GaleriaSmView" />
         <source-file src="src/android/IconUtils.java" target-dir="src/smsgi/com/br/galeriasmview/IconUtils" />
         <source-file src="src/android/ListaDeArquivos.java" target-dir="src/smsgi/com/br/galeriasmview/ListaDeArquivos" />
@@ -99,22 +100,23 @@
 
         <source-file src="src/android/xml/camera.xml" target-dir="res/drawable-anydpi" />
         <source-file src="src/android/xml/confirm.xml" target-dir="res/drawable-anydpi" />
-        <source-file src="src/android/xml/customborder.xml" target-dir="res/drawable-anydpi" />
-        <source-file src="src/android/xml/customborder_selecionado.xml" target-dir="res/drawable-anydpi" />
-        <source-file src="src/android/xml/document.xml" target-dir="res/drawable-anydpi" />
-        <source-file src="src/android/xml/excel.xml" target-dir="res/drawable-anydpi" />
-        <source-file src="src/android/xml/folder.xml" target-dir="res/drawable-anydpi" />
-        <source-file src="src/android/xml/pdf.xml" target-dir="res/drawable-anydpi" />
-        <source-file src="src/android/xml/ppt.xml" target-dir="res/drawable-anydpi" />
-        <source-file src="src/android/xml/word.xml" target-dir="res/drawable-anydpi" />
         <source-file src="src/android/xml/obturador.xml" target-dir="res/drawable-anydpi" />
         <source-file src="src/android/xml/paperfly_send.xml" target-dir="res/drawable-anydpi" />
         <source-file src="src/android/xml/trash.xml" target-dir="res/drawable-anydpi" />
 
-        <source-file src="src/android/xml/cell_layout.xml" target-dir="res/layout" />
-        <source-file src="src/android/xml/activity_galeria_sm_view.xml" target-dir="res/layout" />
+        <source-file src="src/android/xml/galeria/drawable/customborder.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/galeria/drawable/customborder_selecionado.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/galeria/drawable/document.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/galeria/drawable/excel.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/galeria/drawable/folder.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/galeria/drawable/pdf.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/galeria/drawable/ppt.xml" target-dir="res/drawable-anydpi" />
+        <source-file src="src/android/xml/galeria/drawable/word.xml" target-dir="res/drawable-anydpi" />
+
+        <source-file src="src/android/xml/galeria/layout/cell_layout.xml" target-dir="res/layout" />
+        <source-file src="src/android/xml/galeria/layout/activity_galeria_sm_view.xml" target-dir="res/layout" />
         
-        <source-file src="src/android/xml/colors.xml" target-dir="res/values" />
+        <source-file src="src/android/xml/galeria/values/colors.xml" target-dir="res/values" />
         <!--
         <source-file src="src/android/xml/camera.xml" target-dir="res/drawable" />
         <source-file src="src/android/xml/confirm.xml" target-dir="res/drawable" />
