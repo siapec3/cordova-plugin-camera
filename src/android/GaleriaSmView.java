@@ -1,8 +1,10 @@
 package smsgi.com.br.galeriasmview;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
@@ -10,11 +12,13 @@ import android.os.Environment;
 import android.support.v4.os.EnvironmentCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -48,6 +52,7 @@ public class GaleriaSmView extends GaleriaImagensInterface {
     private File arquivoExibicao;
     private String root = null ;
     private GaleriaSmView galeriaContext;
+    private PostImageFeedFragment mFragment;
 
     public GaleriaSmView(CordovaInterface cordovaInterface, View viewGet, CordovaWebView viewWeb, GaleriaWorker worker, CallbackContext callbackContext) {
         super(cordovaInterface, viewGet, viewWeb, worker, callbackContext);
@@ -56,6 +61,7 @@ public class GaleriaSmView extends GaleriaImagensInterface {
 
     public void onCreate() {
         galeriaContext = this;
+        mFragment = new PostImageFeedFragment();
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -70,7 +76,7 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                 RecyclerView.LayoutManager layoutManager = new GridLayoutManager(dialog.getContext(), 3);
                 layoutManager.setAutoMeasureEnabled(true);
                 recyclerView.setLayoutManager(layoutManager);
-                MyAdapter adapter = new MyAdapter(dialog.getContext(), criarArvore(null), galeriaContext);
+                MyAdapter adapter = new MyAdapter(activity, criarArvore(null), galeriaContext, mFragment);
                 recyclerView.setAdapter(adapter);recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
@@ -150,7 +156,7 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                         @Override
                         public void onBackPressed() {
                             super.onBackPressed();
-                            if (previewDialog != null && dialog.isShowing()) {
+                            if (previewDialog != null && previewDialog.isShowing()) {
                                 previewDialog.dismiss();
                                 previewDialog = null;
                             }
@@ -165,10 +171,65 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                     FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
                     previewLayout.setLayoutParams(layoutParams);
                     previewLayout.addView(imagemPreview);
+                    enviarFoto();
                 }
             });
         }
     }
+
+    private void enviarFoto() {
+        ImageButton enviarFotoButton = new ImageButton(activity);
+        enviarFotoButton.setImageResource(R.drawable.paperfly_send);
+
+        enviarFotoButton.setBackground(null);
+        LinearLayout linearLayout = new LinearLayout(activity);
+        LinearLayout.LayoutParams lllp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        lllp.gravity = Gravity.BOTTOM;
+        lllp.setMargins(0,0,20,60);
+        enviarFotoButton.setLayoutParams(lllp);
+        linearLayout.addView(enviarFotoButton);
+        enviarFotoButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                dialogDeComandos();
+            }
+        });
+        previewLayout.addView(linearLayout);
+    }
+
+    protected void dialogDeComandos(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setMessage("Deseja utilizar esta imagem?")
+                .setCancelable(false)
+                .setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface d, int id) {
+                    if (previewDialog != null && previewDialog.isShowing()) {
+                        previewDialog.dismiss();
+                        previewDialog = null;
+                    }
+                    if (dialog != null && dialog.isShowing()) {
+                        setFile(arquivoSelecionado.getMiniatura());
+                        dialog.dismiss();
+                        dialog = null;
+                        getView.setVisibility(View.VISIBLE);
+                        worker.mCallBack.onSuccess(getFile());
+                    }
+                    }
+                })
+                .setNegativeButton("Excluir", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface d, int id) {
+                        getFile().delete();
+                        if (dialog != null && dialog.isShowing()) {
+                            dialog.cancel();
+                            dialog.dismiss();
+                            dialog = null;
+                        }
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
 
     private List<ListaDeArquivos> arquivosSdCard() {
         List<ListaDeArquivos> arquivos = new ArrayList();
@@ -224,11 +285,11 @@ public class GaleriaSmView extends GaleriaImagensInterface {
         } else {
             previsualizacao(activity, arquivo);
         }
-     }
+    }
 
     public void mostrarPastasDoDiretorio(List<ListaDeArquivos> arquivos) {
         processando();
-        MyAdapter adapter = new MyAdapter(dialog.getContext(), arquivos, this);
+        MyAdapter adapter = new MyAdapter(activity, arquivos, this, mFragment);
         recyclerView.setAdapter(adapter);
         recyclerView.setAdapter(adapter);recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -252,19 +313,19 @@ public class GaleriaSmView extends GaleriaImagensInterface {
         LinearLayout layout = (LinearLayout) dialog.findViewById(R.id.botoes);
         if (exibir) {
             layout.setVisibility(View.VISIBLE);
-            Button visualizar = (Button) dialog.findViewById(R.id.visualizar);
-            Bitmap imagem = BitmapFactory.decodeFile(arquivoSelecionado.getMiniatura().getAbsolutePath());
-            if (imagem != null) {
-                visualizar.setVisibility(View.VISIBLE);
-                visualizar.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        entrarPasta(arquivoSelecionado.getMiniatura());
-                    }
-                });
-            } else {
-                visualizar.setVisibility(View.INVISIBLE);
-            }
+//            Button visualizar = (Button) dialog.findViewById(R.id.visualizar);
+//            Bitmap imagem = BitmapFactory.decodeFile(arquivoSelecionado.getMiniatura().getAbsolutePath());
+//            if (imagem != null) {
+//                visualizar.setVisibility(View.VISIBLE);
+//                visualizar.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        entrarPasta(arquivoSelecionado.getMiniatura());
+//                    }
+//                });
+//            } else {
+//                visualizar.setVisibility(View.INVISIBLE);
+//            }
             Button selecionar = (Button) dialog.findViewById(R.id.selecionar);
             selecionar.setOnClickListener(new View.OnClickListener() {
                 @Override

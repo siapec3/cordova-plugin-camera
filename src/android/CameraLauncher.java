@@ -291,7 +291,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
             LOG.d(TAG, "chamou a cameraPrevisualizacao");
             File photo = createCaptureFile(encodingType);
 
-            CameraWorker galeriaWorker = new CameraWorker(cordova, getView(), webView, new OnEventListener<File>() {
+            CameraWorker cameraWorker = new CameraWorker(cordova, getView(), webView, new OnEventListener<File>() {
                 @Override
                 public void onSuccess(File resultPhoto) {
                     Toast.makeText(cordova.getActivity(), "SM_SUCCESS:::: " + resultPhoto.getAbsolutePath(), Toast.LENGTH_LONG).show();
@@ -309,7 +309,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     callbackContext.sendPluginResult(r);
                 }
             }, encodingType, callbackContext);
-            galeriaWorker.execute();
+            cameraWorker.execute();
         } else if (saveAlbumPermission && !takePicturePermission) {
             PermissionHelper.requestPermission(this, TAKE_PIC_SEC, Manifest.permission.CAMERA);
         } else if (!saveAlbumPermission && takePicturePermission) {
@@ -733,10 +733,9 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
      * Applies all needed transformation to the image received from the gallery.
      *
      * @param destType In which form should we return the image
-     * @param intent   An Intent, which can return result data to the caller (various data can be attached to Intent "extras").
      */
-    private void processResultFromGallery(int destType, Intent intent) {
-        Uri uri = intent.getData();
+    private void processResultFromGallery(int destType) {
+        Uri uri = this.imageUri.getFileUri();
         if (uri == null) {
             if (croppedUri != null) {
                 uri = croppedUri;
@@ -846,21 +845,21 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
             }
         }
 //        // If retrieving photo from library
-//        else if ((srcType == PHOTOLIBRARY) || (srcType == SAVEDPHOTOALBUM)) {
+        else if ((srcType == PHOTOLIBRARY) || (srcType == SAVEDPHOTOALBUM)) {
 //            if (resultCode == Activity.RESULT_OK && intent != null) {
 //                final Intent i = intent;
-//                final int finalDestType = destType;
-//                cordova.getThreadPool().execute(new Runnable() {
-//                    public void run() {
-//                        processResultFromGallery(finalDestType, i);
-//                    }
-//                });
+                final int finalDestType = destType;
+                cordova.getThreadPool().execute(new Runnable() {
+                    public void run() {
+                        processResultFromGallery(finalDestType);
+                    }
+                });
 //            } else if (resultCode == Activity.RESULT_CANCELED) {
 //                this.failPicture("No Image Selected");
 //            } else {
 //                this.failPicture("Selection did not complete!");
 //            }
-//        }
+        }
     }
 
     private int exifToDegrees(int exifOrientation) {
