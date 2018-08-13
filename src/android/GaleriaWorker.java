@@ -1,4 +1,4 @@
-package smsgi.com.br.cameraapp;
+package smsgi.com.br.galeriasmview;
 
 import android.os.AsyncTask;
 import android.view.View;
@@ -9,7 +9,7 @@ import org.apache.cordova.CordovaWebView;
 
 import java.io.File;
 
-import smsgi.com.br.galeriasmview.GaleriaSmView;
+import smsgi.com.br.cameraapp.OnEventListener;
 
 /**
  * Created by desenvolvimento10 on 04/07/18.

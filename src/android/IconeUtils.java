@@ -4,7 +4,6 @@ package smsgi.com.br.galeriasmview;
  * Created by desenvolvimento10 on 05/07/18.
  */
 
-//package com.retain;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -56,3 +55,5 @@ public class IconeUtils {
     }
 
 }// end class AppUtils
+
+

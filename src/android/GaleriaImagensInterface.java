@@ -15,8 +15,6 @@ import org.apache.cordova.PluginResult;
 
 import java.io.File;
 
-import smsgi.com.br.cameraapp.GaleriaWorker;
-
 /**
  * Created by desenvolvimento10 on 03/07/18.
  */

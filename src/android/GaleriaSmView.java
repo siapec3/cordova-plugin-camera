@@ -1,16 +1,13 @@
 package smsgi.com.br.galeriasmview;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.os.EnvironmentCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -20,8 +17,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 
 import com.ionicframework.siapec3mobile136142.R;
 
@@ -31,13 +26,9 @@ import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import smsgi.com.br.cameraapp.GaleriaImagensInterface;
-import smsgi.com.br.cameraapp.GaleriaWorker;
 
 /**
  * @author Marcelio De Oliveira
