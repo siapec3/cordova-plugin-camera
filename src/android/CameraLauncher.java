@@ -63,7 +63,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import smsgi.com.br.cameraapp.CameraWorker;
-import smsgi.com.br.cameraapp.GaleriaWorker;
+import smsgi.com.br.galeriasmview.GaleriaWorker;
 import smsgi.com.br.cameraapp.OnEventListener;
 
 /**
