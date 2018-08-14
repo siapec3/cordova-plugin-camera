@@ -218,7 +218,7 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                 })
                 .setNegativeButton("Excluir", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface d, int id) {
-                        getFile().delete();
+                        if (getFile() != null) { getFile().delete(); }
                         if (dialog != null && dialog.isShowing()) {
                             dialog.cancel();
                             dialog.dismiss();
