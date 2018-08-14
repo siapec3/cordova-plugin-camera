@@ -95,6 +95,8 @@
         <source-file src="src/android/IconeUtils.java" target-dir="src/smsgi/com/br/galeriasmview" />
         <source-file src="src/android/ListaDeArquivos.java" target-dir="src/smsgi/com/br/galeriasmview" />
         <source-file src="src/android/MyAdapter.java" target-dir="src/smsgi/com/br/galeriasmview" />
+        <source-file src="src/android/PostImageBitmapWorkerTask.java" target-dir="src/smsgi/com/br/galeriasmview" />
+        <source-file src="src/android/PostImageFeedFragment.java" target-dir="src/smsgi/com/br/galeriasmview" />
 
 
         <source-file src="src/android/xml/camera_provider_paths.xml" target-dir="res/xml" />
