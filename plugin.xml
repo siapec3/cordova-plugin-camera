@@ -114,7 +114,6 @@
         <source-file src="src/android/xml/galeria/drawable/ppt.xml" target-dir="res/drawable-anydpi" />
         <source-file src="src/android/xml/galeria/drawable/word.xml" target-dir="res/drawable-anydpi" />
         <source-file src="src/android/xml/galeria/drawable/image_area.xml" target-dir="res/drawable-anydpi" />
-        <source-file src="src/android/xml/galeria/drawable/paperfly_send.xml" target-dir="res/drawable-anydpi" />
 
         <source-file src="src/android/xml/galeria/layout/cell_layout.xml" target-dir="res/layout" />
         <source-file src="src/android/xml/galeria/layout/activity_galeria_sm_view.xml" target-dir="res/layout" />
