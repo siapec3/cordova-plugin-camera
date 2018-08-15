@@ -159,6 +159,7 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                             if (previewDialog != null && previewDialog.isShowing()) {
                                 previewDialog.dismiss();
                                 previewDialog = null;
+                                arquivoExibicao = null;
                             }
                         }
                     };
@@ -219,10 +220,9 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                 .setNegativeButton("Excluir", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface d, int id) {
                         if (getFile() != null) { getFile().delete(); }
-                        if (dialog != null && dialog.isShowing()) {
-                            dialog.cancel();
-                            dialog.dismiss();
-                            dialog = null;
+                        if (previewDialog != null && previewDialog.isShowing()) {
+                            previewDialog.dismiss();
+                            previewDialog = null;
                         }
                     }
                 });

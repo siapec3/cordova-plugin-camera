@@ -20,7 +20,7 @@ public class PostImageBitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> 
     private List<ListaDeArquivos> galleryList;
     private MyAdapter myAdapter;
 
-    public PostImageBitmapWorkerTask(ImageView imageView, String TAG, PostImageFeedFragment fragment,  List<ListaDeArquivos> galleryList, MyAdapter myAdapter) {
+    public PostImageBitmapWorkerTask(ImageView imageView, String TAG, PostImageFeedFragment fragment, List<ListaDeArquivos> galleryList, MyAdapter myAdapter) {
         mImageView = imageView;
         this.TAG = TAG;
         mFragment = fragment;
@@ -34,8 +34,8 @@ public class PostImageBitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> 
 //        Bitmap bitmap = mFragment.getBitmapFromMemCache(params[0]);
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         arquivoSelecionado.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
-        mFragment.addBitmapToCache(String.valueOf(TAG),arquivoSelecionado);
-        return mFragment.getBitmapFromMemCache(TAG);
+//        mFragment.addBitmapToCache(String.valueOf(TAG),arquivoSelecionado);
+        return arquivoSelecionado;
     }
 
     @Override
