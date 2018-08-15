@@ -63,7 +63,9 @@
             <uses-feature android:name="android.hardware.camera"
                 android:required="true" />
         </config-file>
-        <config-file target="AndroidManifest.xml" parent="application" android:hardwareAccelerated="false" android:largeHeap="true">
+        <config-file target="AndroidManifest.xml" parent="manifest" android:hardwareAccelerated="false">
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="application" android:largeHeap="true">
           <provider
               android:name="org.apache.cordova.camera.FileProvider"
               android:authorities="${applicationId}.provider"
