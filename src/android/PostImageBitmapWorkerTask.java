@@ -33,7 +33,9 @@ public class PostImageBitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> 
         arquivoSelecionado = BitmapFactory.decodeFile(galleryList.get(Integer.valueOf(TAG)).getMiniatura().getAbsolutePath());
 //        Bitmap bitmap = mFragment.getBitmapFromMemCache(params[0]);
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        arquivoSelecionado.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+        if (arquivoSelecionado != null) {
+            arquivoSelecionado.compress(Bitmap.CompressFormat.JPEG, 70, outStream);
+        }
 //        mFragment.addBitmapToCache(String.valueOf(TAG),arquivoSelecionado);
         return arquivoSelecionado;
     }
@@ -42,7 +44,9 @@ public class PostImageBitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> 
     protected void onPostExecute(Bitmap bitmap) {
         super.onPostExecute(bitmap);
         if(mImageView.getTag().toString().equals(TAG)) {
-            mImageView.setImageBitmap(Bitmap.createScaledBitmap(arquivoSelecionado, 120, 120, false));
+            if (arquivoSelecionado != null) {
+                mImageView.setImageBitmap(Bitmap.createScaledBitmap(arquivoSelecionado, 120, 120, false));
+            }
         }
         myAdapter.notifyItemRangeInserted(Integer.valueOf(TAG),0);
     }

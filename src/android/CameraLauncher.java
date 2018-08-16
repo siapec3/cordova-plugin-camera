@@ -217,12 +217,13 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
                 } else if ((this.srcType == PHOTOLIBRARY) || (this.srcType == SAVEDPHOTOALBUM)) {
                     // FIXME: Stop always requesting the permission
-                    if (!PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                        PermissionHelper.requestPermission(this, SAVE_TO_ALBUM_SEC, Manifest.permission.READ_EXTERNAL_STORAGE);
-                    } else {
-                        //Caso seja GALERIA chamar a customizada pela SM
-                        this.getImageCustimizadaSM(this.srcType, destType, encodingType);
-                    }
+                    this.getImageCustimizadaSM(this.srcType, destType, encodingType);
+//                    if (!PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+//                        PermissionHelper.requestPermission(this, SAVE_TO_ALBUM_SEC, Manifest.permission.READ_EXTERNAL_STORAGE);
+//                    } else {
+//                        //Caso seja GALERIA chamar a customizada pela SM
+//                        this.getImageCustimizadaSM(this.srcType, destType, encodingType);
+//                    }
                 }
             } catch (IllegalArgumentException e) {
                 callbackContext.error("Illegal Argument Exception" + PluginResult.Status.ERROR);
@@ -395,7 +396,8 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
             GaleriaWorker galeriaWorker = new GaleriaWorker(cordova, getView(), webView, new OnEventListener<File>() {
                 @Override
                 public void onSuccess(File resultPhoto) {
-                    Toast.makeText(cordova.getActivity(), "SM_SUCCESS:::: " + resultPhoto.getAbsolutePath(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(cordova.getActivity(), "SM_SUCCESS:::: " + resultPhoto.getAbsolutePath() + " ext:: " + getFileExtension(resultPhoto), Toast.LENGTH_LONG).show();
+                    mediaType =  (getFileExtension(resultPhoto) == JPEG_EXTENSION || getFileExtension(resultPhoto) == PNG_EXTENSION)? PICTURE : ALLMEDIA ;
                     imageUri = new CordovaUri(FileProvider.getUriForFile(cordova.getActivity(),
                             applicationId + ".provider",
                             resultPhoto));
@@ -419,6 +421,16 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         } else {
             PermissionHelper.requestPermissions(this, TAKE_PIC_SEC, permissions);
         }
+    }
+
+
+    private static String getFileExtension(File file) {
+        String fileName = file.getName();
+        if(fileName.lastIndexOf(".") != -1 && fileName.lastIndexOf(".") != 0){
+            String extensao = fileName.substring(fileName.lastIndexOf(".")+1);
+            return "."+extensao;
+        }
+        else return "";
     }
 
     /**

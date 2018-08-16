@@ -13,34 +13,35 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#ededed"
-        android:layout_weight="8"/>
+        android:layout_weight="8.5"/>
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="2"
+        android:layout_weight="1.5"
         android:gravity="center|bottom"
         android:orientation="vertical"
         android:id="@+id/botoes"
         android:visibility="invisible"
         android:background="#ededed"
         android:layout_alignParentBottom="true">
-        <Button
-            android:id="@+id/visualizar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:text="Visualizar"
-            android:background="?android:attr/selectableItemBackground"
-            android:layout_alignParentLeft="true"
-            android:visibility="invisible"
-            android:textColor="@color/colorPrimary"/>
+        <!--<Button-->
+            <!--android:id="@+id/visualizar"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="20dp"-->
+            <!--android:text="Visualizar"-->
+            <!--android:background="?android:attr/selectableItemBackground"-->
+            <!--android:layout_alignParentLeft="true"-->
+            <!--android:visibility="invisible"-->
+            <!--android:textColor="@color/colorPrimary"/>-->
         <Button
             android:id="@+id/selecionar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginRight="0dp"
+            android:layout_marginBottom="0dp"
             android:layout_alignParentEnd="true"
             android:text="Selecionar"
             android:background="?android:attr/selectableItemBackground"

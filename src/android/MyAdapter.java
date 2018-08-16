@@ -67,13 +67,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 //                       arquivoSelecionado = BitmapFactory.decodeFile(galleryList.get(position).getMiniatura().getAbsolutePath());
                 Bitmap bitmap = mFragment.getBitmapFromMemCache(String.valueOf(TAG));
                 if (bitmap == null) {
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            PostImageBitmapWorkerTask task = new PostImageBitmapWorkerTask(viewHolderThread.img, TAG, mFragment, galleryList, myAdapter);
-                            task.execute(Integer.valueOf(TAG));
-                        }
-                    });
+//                    activity.runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            PostImageBitmapWorkerTask task = new PostImageBitmapWorkerTask(viewHolderThread.img, TAG, mFragment, galleryList, myAdapter);
+//                            task.execute(Integer.valueOf(TAG));
+//                        }
+//                    });
 
                } else {
                    formato = galleryList.get(position).getTituloDaImagem().substring(galleryList.get(position).getTituloDaImagem().lastIndexOf(".") + 1);
