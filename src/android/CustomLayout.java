@@ -6,9 +6,11 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.media.ExifInterface;
@@ -18,6 +20,7 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +34,7 @@ import android.widget.RelativeLayout;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.LOG;
 import org.apache.cordova.PluginResult;
 
 import java.io.ByteArrayOutputStream;
@@ -38,11 +42,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 
@@ -74,6 +80,8 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
     protected CameraWorker worker;
     private FrameLayout previewLayout;
     private ProgressBar andamentoProcesso;
+    private BitmapFactory.Options options;
+    private Bitmap bitmap;
     /**
      * @param cordovaInterface
      * @param viewGet
@@ -87,6 +95,9 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
         AppCameraSm.getView = viewGet;
         AppCameraSm.webView = viewWeb;
         worker.registerCallback(this);
+        options = new BitmapFactory.Options();
+        options.inMutable = true;
+
     }
 
     protected void mostrarObturador(){
@@ -122,8 +133,8 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
             int w = 0; int h = 0;
             for (int i=0; i < previewSizes.size(); i++) {
                 Log.d(TAG, ">>>>>>>>>>>>>>>>  getCameraInstance Width x Heigth " + previewSizes.get(i).width +" x "+ previewSizes.get(i).height);
-                w = ( w < previewSizes.get(i).width)?  previewSizes.get(i).width : w ;
-                h = ( h < previewSizes.get(i).height)?  previewSizes.get(i).height : h ;
+                w = ( w < previewSizes.get(i).width && (previewSizes.get(i).width < 964))?  previewSizes.get(i).width : w ;
+                h = ( h < previewSizes.get(i).height && (previewSizes.get(i).height < 750))? previewSizes.get(i).height : h ;
             }
             Log.d(TAG, ">>>>>>>>>>>>>>>>  getCameraInstance " + w +"x"+ h);
             params.setPictureSize(w, h);
@@ -240,7 +251,15 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
             }
             try {
                 FileOutputStream fos = new FileOutputStream(file);
+
                 Bitmap realImage = BitmapFactory.decodeByteArray(data, 0, data.length);
+                options.inJustDecodeBounds = false;
+                options.inSampleSize = calculateInSampleSize(options, 640, 640);
+//                fos.write(data);
+
+//                Bitmap realImage = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+
+
                 ExifInterface exif = new ExifInterface(file.toString());
 
                 Log.d("Exif value", exif.getAttribute(ExifInterface.TAG_ORIENTATION));
@@ -250,12 +269,12 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                     realImage = rotate(realImage, 270);
                 } else if (exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("3")) {
                     realImage = rotate(realImage, 180);
-                } else if (exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("0")) {
+                } else if (exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("0") || exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("1")) {
                     realImage = rotate(realImage, 90);
                 }
 
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                boolean bo = realImage.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                boolean bo = realImage.compress(Bitmap.CompressFormat.JPEG, 50, bos);
                 byte[] bitmapdata = bos.toByteArray();
 
                 fos.write(bitmapdata);
@@ -272,6 +291,19 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
             }
         }
     };
+
+
+    private Bitmap rotate(Bitmap bitmap, int degree){
+
+
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+
+        Matrix mtx = new Matrix();
+        mtx.setRotate(degree);
+
+        return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx,true);
+    }
 
 
 
@@ -295,7 +327,21 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                 newdialog.setCancelable(false);
                 newdialog.show();
                 ImageView imagemPreview = new ImageView(activity);
-                imagemPreview.setImageBitmap(BitmapFactory.decodeFile(getFile().getAbsolutePath()));
+                try {
+                    options.inJustDecodeBounds = true;
+                    options.inSampleSize = 3;
+                    bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath(), options);
+
+                    options.inJustDecodeBounds = false;
+                    options.inSampleSize = calculateInSampleSize(options, 500, 500);
+                    bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath(), options);
+
+
+                    imagemPreview.setImageBitmap(bitmap);
+                }catch(Exception ex){
+                    LOG.d(TAG , ex.getMessage());
+                }
+//                imagemPreview.setImageURI(Uri.fromFile(getFile()));
                 FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
                 previewLayout.setLayoutParams(layoutParams);
                 previewLayout.addView(imagemPreview);
@@ -306,6 +352,30 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
             }
         });
     }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
 
     private void enviarFoto() {
         ImageButton enviarFotoButton = criarImageButton("paperfly_send", "button_foto");
@@ -336,15 +406,6 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
         lp.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
         progress.setLayoutParams(lp);
         return progress;
-    }
-
-    private static Bitmap rotate(Bitmap bitmap, int degree){
-        int w = bitmap.getWidth();
-        int h = bitmap.getHeight();
-
-        Matrix mtx = new Matrix();
-        mtx.setRotate(degree);
-        return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx,true);
     }
 
     protected Camera.Size getLargestPictureSize(Camera.Parameters parameters) {

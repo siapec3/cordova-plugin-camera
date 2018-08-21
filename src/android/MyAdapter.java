@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.ionicframework.siapec3mobile136142.R;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -60,20 +61,20 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         viewHolder.img.setTag(position);
 
         if (galleryList != null && position < galleryList.size() && galleryList.get(position) != null) {
-            if (!galleryList.get(position).getMiniatura().isDirectory()) {
+            if (!new File(galleryList.get(position).getMiniatura()).isDirectory()) {
                 String formato = galleryList.get(position).getTituloDaImagem().substring(galleryList.get(position).getTituloDaImagem().lastIndexOf(".") + 1);
                 formatarThumbnails(viewHolder, formato);
                 viewHolderThread = viewHolder;
 //                       arquivoSelecionado = BitmapFactory.decodeFile(galleryList.get(position).getMiniatura().getAbsolutePath());
                 Bitmap bitmap = mFragment.getBitmapFromMemCache(String.valueOf(TAG));
                 if (bitmap == null) {
-//                    activity.runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            PostImageBitmapWorkerTask task = new PostImageBitmapWorkerTask(viewHolderThread.img, TAG, mFragment, galleryList, myAdapter);
-//                            task.execute(Integer.valueOf(TAG));
-//                        }
-//                    });
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            PostImageBitmapWorkerTask task = new PostImageBitmapWorkerTask(viewHolderThread.img, TAG, mFragment, galleryList, myAdapter);
+                            task.execute(Integer.valueOf(TAG));
+                        }
+                    });
 
                } else {
                    formato = galleryList.get(position).getTituloDaImagem().substring(galleryList.get(position).getTituloDaImagem().lastIndexOf(".") + 1);
@@ -97,15 +98,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     }
 
     private void formatarThumbnails(ViewHolder viewHolder, String formato){
-        if (formato.equals("doc") || formato.equals("docx")) {
+        if (formato.equals("doc") || formato.equals("docx") || formato.equals("odt")) {
             viewHolder.img.setImageResource(R.drawable.word);
-        } else if (formato.equals("xls") || formato.equals("xlsx")) {
+        } else if (formato.equals("xls") || formato.equals("xlsx") || formato.equals("ods")) {
             viewHolder.img.setImageResource(R.drawable.excel);
         } else if (formato.equals("pdf")) {
             viewHolder.img.setImageResource(R.drawable.pdf);
-        } else if (formato.equals("ppt") || formato.equals("pptx")) {
+        } else if (formato.equals("ppt") || formato.equals("pptx") || formato.equals("odp")) {
             viewHolder.img.setImageResource(R.drawable.ppt);
-        } else if (formato.equals("jpeg") || formato.equals("jpg")) {
+        } else if (formato.equals("jpeg") || formato.equals("jpg") || formato.equals("png") || formato.equals("gif")) {
             viewHolder.img.setImageResource(R.drawable.image_area);
         } else {
             viewHolder.img.setImageResource(R.drawable.document);
@@ -127,7 +128,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                 galeriaSm.setArquivoSelecionado(galleryList.get(Integer.valueOf(view.getTag().toString())));
                 if (galleryList.get(Integer.valueOf(view.getTag().toString())).getMiniatura() != null) {
                     galeriaSm.setArquivoSelecionado(galleryList.get(Integer.valueOf(view.getTag().toString())));
-                    galeriaSm.entrarPasta(galleryList.get(Integer.valueOf(view.getTag().toString())).getMiniatura());
+                    galeriaSm.entrarPasta(galleryList.get(Integer.valueOf(view.getTag().toString())).getMiniatura(), galleryList.get(Integer.valueOf(view.getTag().toString())).isDiretorio());
                 }
             }
         };
@@ -139,8 +140,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             public boolean onLongClick(View view) {
                 marcarSelecionado((int) Integer.valueOf(view.getTag().toString()));
                 galeriaSm.setArquivoSelecionado(galleryList.get( Integer.valueOf(view.getTag().toString())));
-                if (galleryList.get( Integer.valueOf(view.getTag().toString())).getMiniatura().isDirectory()) {
-                    galeriaSm.entrarPasta(galleryList.get( Integer.valueOf(view.getTag().toString())).getMiniatura());
+                if (galleryList.get( Integer.valueOf(view.getTag().toString())).isDiretorio()) {
+                    galeriaSm.entrarPasta(galleryList.get( Integer.valueOf(view.getTag().toString())).getMiniatura(), galleryList.get(Integer.valueOf(view.getTag().toString())).isDiretorio());
                 } else {
                     galeriaSm.setArquivoSelecionado(galleryList.get( Integer.valueOf(view.getTag().toString())));
                     notifyDataSetChanged();

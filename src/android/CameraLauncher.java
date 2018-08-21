@@ -50,6 +50,7 @@ import org.apache.cordova.PermissionHelper;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -397,6 +398,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 @Override
                 public void onSuccess(File resultPhoto) {
                     Toast.makeText(cordova.getActivity(), "SM_SUCCESS:::: " + resultPhoto.getAbsolutePath() + " ext:: " + getFileExtension(resultPhoto), Toast.LENGTH_LONG).show();
+                    file = resultPhoto;
                     mediaType =  (getFileExtension(resultPhoto) == JPEG_EXTENSION || getFileExtension(resultPhoto) == PNG_EXTENSION)? PICTURE : ALLMEDIA ;
                     imageUri = new CordovaUri(FileProvider.getUriForFile(cordova.getActivity(),
                             applicationId + ".provider",
@@ -433,59 +435,6 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         else return "";
     }
 
-    /**
-     * Get image from photo library.
-     *
-     * @param srcType      The album to get image from.
-     * @param returnType   Set the type of image to return.
-     * @param encodingType
-     */
-    // TODO: Images selected from SDCARD don't display correctly, but from CAMERA ALBUM do!
-    // TODO: Images from kitkat filechooser not going into crop function
-    public void getImage(int srcType, int returnType, int encodingType) {
-        Intent intent = new Intent();
-        String title = GET_PICTURE;
-        croppedUri = null;
-        if (this.mediaType == PICTURE) {
-            intent.setType("image/*");
-            if (this.allowEdit) {
-                intent.setAction(Intent.ACTION_PICK);
-                intent.putExtra("crop", "true");
-                if (targetWidth > 0) {
-                    intent.putExtra("outputX", targetWidth);
-                }
-                if (targetHeight > 0) {
-                    intent.putExtra("outputY", targetHeight);
-                }
-                if (targetHeight > 0 && targetWidth > 0 && targetWidth == targetHeight) {
-                    intent.putExtra("aspectX", 1);
-                    intent.putExtra("aspectY", 1);
-                }
-                File photo = createCaptureFile(JPEG);
-                croppedUri = Uri.fromFile(photo);
-                intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, croppedUri);
-            } else {
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-            }
-        } else if (this.mediaType == VIDEO) {
-            intent.setType("video/*");
-            title = GET_VIDEO;
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-        } else if (this.mediaType == ALLMEDIA) {
-            // I wanted to make the type 'image/*, video/*' but this does not work on all versions
-            // of android so I had to go with the wildcard search.
-            intent.setType("*/*");
-            title = GET_All;
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-        }
-        if (this.cordova != null) {
-            this.cordova.startActivityForResult((CordovaPlugin) this, Intent.createChooser(intent,
-                    new String(title)), (srcType + 1) * 16 + returnType + 1);
-        }
-    }
 
     /**
      * Brings up the UI to perform crop on passed image URI
@@ -763,8 +712,19 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
         // If you ask for video or all media type you will automatically get back a file URI
         // and there will be no attempt to resize any returned data
-        if (this.mediaType != PICTURE) {
-            this.callbackContext.success(fileLocation);
+        if (mediaType != PICTURE) {
+            byte[] code = this.loadFile(file);
+            byte[] output = Base64.encode(code, Base64.NO_WRAP);
+            String js_out = new String(output);
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("data", js_out);
+                jsonObject.put("extensao", getFileExtension(file));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            this.callbackContext.success(jsonObject);
+//            this.callbackContext.success(fileLocation);
         } else {
             String uriString = uri.toString();
             // Get the path to the image. Makes loading so much easier.
@@ -827,6 +787,36 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 System.gc();
             }
         }
+    }
+
+    private byte[] loadFile(File file){
+        byte[] bytes = null;
+        try {
+
+            InputStream is = new FileInputStream(file);
+            long length = file.length();
+
+            if (length > Integer.MAX_VALUE) {
+                // File is too large
+            }
+
+            bytes = new byte[(int)length];
+            int offset = 0;
+            int numRead = 0;
+            while (offset < bytes.length
+                    && (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
+                offset += numRead;
+            }
+
+            if (offset < bytes.length) {
+                this.failPicture("Error ao converter imagem base64." +file.getName());
+            }
+
+            is.close();
+        } catch (IOException iox){
+            this.failPicture("Error ao converter imagem base64." + iox.getMessage());
+        }
+        return bytes;
     }
 
     /**
@@ -1274,7 +1264,14 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 byte[] code = jpeg_data.toByteArray();
                 byte[] output = Base64.encode(code, Base64.NO_WRAP);
                 String js_out = new String(output);
-                this.callbackContext.success(js_out);
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("data", js_out);
+                    jsonObject.put("extensao", getFileExtension(file));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                this.callbackContext.success(jsonObject);
                 js_out = null;
                 output = null;
                 code = null;
@@ -1359,7 +1356,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 takePicture(this.destType, this.encodingType);
                 break;
             case SAVE_TO_ALBUM_SEC:
-                this.getImage(this.srcType, this.destType, this.encodingType);
+                this.getImageCustimizadaSM(this.srcType, this.destType, this.encodingType);
                 break;
         }
     }

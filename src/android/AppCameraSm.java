@@ -151,17 +151,17 @@ public class AppCameraSm extends CustomLayout {
                             newdialog = null;
                         }
                     }
-                })
-                .setNegativeButton("Excluir", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        tentarNovamente();
-                        newdialog.cancel();
-                        if (newdialog != null && newdialog.isShowing()) {
-                            newdialog.dismiss();
-                            newdialog = null;
-                        }
-                    }
                 });
+//                .setNegativeButton("Excluir", new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int id) {
+//                        tentarNovamente();
+//                        newdialog.cancel();
+//                        if (newdialog != null && newdialog.isShowing()) {
+//                            newdialog.dismiss();
+//                            newdialog = null;
+//                        }
+//                    }
+//                });
         AlertDialog alert = builder.create();
         alert.show();
     }
