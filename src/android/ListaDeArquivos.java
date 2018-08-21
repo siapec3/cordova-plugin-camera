@@ -13,13 +13,15 @@ import java.io.File;
 public class ListaDeArquivos implements Comparable {
 
     private String tituloDaImagem;
-    private File miniatura;
+    private String miniatura;
     private boolean selecionado;
+    private boolean diretorio;
 
-    public ListaDeArquivos(String tituloDaImagem, File miniatura) {
+    public ListaDeArquivos(String tituloDaImagem, String miniatura, boolean diretorio) {
         this.tituloDaImagem = tituloDaImagem;
         this.miniatura = miniatura;
         this.selecionado = false;
+        this.diretorio = diretorio;
     }
 
     public boolean isSelecionado() {
@@ -38,21 +40,28 @@ public class ListaDeArquivos implements Comparable {
         this.tituloDaImagem = tituloDaImagem;
     }
 
-    public File getMiniatura() {
+    public String getMiniatura() {
         return miniatura;
     }
 
-    public void setMiniatura(File miniatura) {
+    public void setMiniatura(String miniatura) {
         this.miniatura = miniatura;
     }
 
+    public boolean isDiretorio() {
+        return diretorio;
+    }
+
+    public void setDiretorio(boolean diretorio) {
+        this.diretorio = diretorio;
+    }
 
     @Override
     public int compareTo(@NonNull Object obj) {
         ListaDeArquivos arq = (ListaDeArquivos) obj;
-        if (this.getMiniatura().isDirectory() && !arq.getMiniatura().isDirectory()) {
+        if (this.isDiretorio() && !arq.isDiretorio()) {
             return -1;
-        } else if (!this.getMiniatura().isDirectory() && arq.getMiniatura().isDirectory()) {
+        } else if (!this.isDiretorio() && arq.isDiretorio()) {
             return 1;
         } else {
             return this.getTituloDaImagem().compareTo(arq.getTituloDaImagem());
