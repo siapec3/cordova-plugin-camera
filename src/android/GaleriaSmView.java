@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.support.v4.os.EnvironmentCompat;
@@ -145,9 +146,9 @@ public class GaleriaSmView extends GaleriaImagensInterface {
         }
     }
 
-    private void previsualizacao(Context context, File file) {
-        this.arquivoExibicao = file;
-        Bitmap imagem = BitmapFactory.decodeFile(file.getAbsolutePath());
+    private void previsualizacao(Context context, String file) {
+        this.arquivoExibicao = new File(file);
+        Bitmap imagem = BitmapFactory.decodeFile(this.arquivoExibicao.getAbsolutePath());
         if (imagem != null) {
             activity.runOnUiThread(new Runnable() {
                 @Override
@@ -167,8 +168,10 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                     previewDialog.setContentView(previewLayout);
                     previewDialog.setCancelable(false);
                     previewDialog.show();
-                    ImageView imagemPreview = new ImageView(activity);
+                    ImageView imagemPreview = null;
+                    imagemPreview = new ImageView(activity);
                     imagemPreview.setImageBitmap(BitmapFactory.decodeFile(arquivoExibicao.getAbsolutePath()));
+//                   imagemPreview.setImageURI(Uri.fromFile(getFile()));
                     FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
                     previewLayout.setLayoutParams(layoutParams);
                     previewLayout.addView(imagemPreview);
@@ -209,7 +212,7 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                         previewDialog = null;
                     }
                     if (dialog != null && dialog.isShowing()) {
-                        setFile(arquivoSelecionado.getMiniatura());
+                        setFile(new File(arquivoSelecionado.getMiniatura()));
                         dialog.dismiss();
                         dialog = null;
                         getView.setVisibility(View.VISIBLE);
@@ -245,7 +248,7 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                     addPath = Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(file));
                 }
                 if (addPath) {
-                    arquivos.add(new ListaDeArquivos("Cartão de Memória", new File(path)));
+                    arquivos.add(new ListaDeArquivos("Cartão de Memória", path, true));
                 }
             }
         }catch (Exception iox){
@@ -259,7 +262,7 @@ public class GaleriaSmView extends GaleriaImagensInterface {
         this.diretorioAtivo = caminho;
         if (caminho == null || caminho.equals("/storage") || caminho.equals("/storage/emulated")) {
             if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) && arquivosSdCard().size() > 0) {
-                arquivos.add(new ListaDeArquivos("Armazenamento Interno", new File(Environment.getExternalStorageDirectory().getAbsolutePath())));
+                arquivos.add(new ListaDeArquivos("Armazenamento Interno", Environment.getExternalStorageDirectory().getAbsolutePath(), new File(Environment.getExternalStorageDirectory().getAbsolutePath()).isDirectory()));
                 arquivos.addAll(arquivosSdCard());
                 return arquivos;
             } else {
@@ -267,21 +270,21 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                 return criarArvore(Environment.getExternalStorageDirectory().getAbsolutePath());
             }
         } else if (root == null || !root.equals(caminho)){
-            arquivos.add(new ListaDeArquivos("..", new File(caminho.substring(0, caminho.lastIndexOf(File.separator)))));
+            arquivos.add(new ListaDeArquivos("..", caminho.substring(0, caminho.lastIndexOf(File.separator)),  true));
         }
         File[] arquivosInternos = new File(caminho).listFiles();
         for (int i = 0; i < arquivosInternos.length; i++) {
-            ListaDeArquivos lista = new ListaDeArquivos(arquivosInternos[i].getName(), arquivosInternos[i]);
+            ListaDeArquivos lista = new ListaDeArquivos(arquivosInternos[i].getName(), arquivosInternos[i].getAbsolutePath(), arquivosInternos[i].isDirectory() );
             arquivos.add(lista);
         }
         Collections.sort(arquivos);
         return arquivos;
     }
 
-    public void entrarPasta(File arquivo) {
-        if (arquivo.isDirectory()) {
+    public void entrarPasta(String arquivo, boolean diretorio) {
+        if (diretorio) {
             changeBotoes(false);
-            mostrarPastasDoDiretorio(criarArvore(arquivo.getAbsolutePath()));
+            mostrarPastasDoDiretorio(criarArvore(arquivo));
         } else {
             previsualizacao(activity, arquivo);
         }
@@ -334,7 +337,7 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                      * Colocar aqui a parte para retornar para o ionic
                      * a variavel do arquivo é arquivoSelecionado.getMiniatura()
                      */
-                    setFile(arquivoSelecionado.getMiniatura());
+                    setFile(new File(arquivoSelecionado.getMiniatura()));
                     if (dialog != null && dialog.isShowing()) {
                         dialog.dismiss();
                         dialog = null;
