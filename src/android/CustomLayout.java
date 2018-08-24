@@ -13,6 +13,7 @@ import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
+import android.hardware.camera2.CaptureResult;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -81,7 +82,8 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
     private FrameLayout previewLayout;
     private ProgressBar andamentoProcesso;
     private BitmapFactory.Options options;
-    private Bitmap bitmap;
+    private int w = 0;
+    private int h = 0;
     /**
      * @param cordovaInterface
      * @param viewGet
@@ -120,17 +122,18 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
     }
 
     // Helper to be compile-time compatible with both Cordova 3.x and 4.x.
-    protected static Camera getCameraInstance() {
+    protected Camera getCameraInstance() {
         Camera c = null;
         try {
             c = Camera.open();
             Camera.Parameters params = c.getParameters();
             List<Camera.Size> previewSizes = params.getSupportedPreviewSizes();
-            params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+//            params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+            params.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
             params.setPictureFormat(ImageFormat.JPEG);
 //            params.setPictureSize(640, 480);
             // You need to choose the most appropriate previewSize for your app
-            int w = 0; int h = 0;
+
             for (int i=0; i < previewSizes.size(); i++) {
                 Log.d(TAG, ">>>>>>>>>>>>>>>>  getCameraInstance Width x Heigth " + previewSizes.get(i).width +" x "+ previewSizes.get(i).height);
                 w = ( w < previewSizes.get(i).width && (previewSizes.get(i).width < 964))?  previewSizes.get(i).width : w ;
@@ -272,7 +275,7 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                 }
 
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                boolean bo = realImage.compress(Bitmap.CompressFormat.JPEG, 65, bos);
+                boolean bo = realImage.compress(Bitmap.CompressFormat.JPEG, 80, bos);
                 byte[] bitmapdata = bos.toByteArray();
 
                 fos.write(bitmapdata);
@@ -327,16 +330,19 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                 preVisualizacaoDialog.show();
                 ImageView imagemPreview = new ImageView(activity);
                 try {
+                    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
                     options.inJustDecodeBounds = true;
-                    options.inSampleSize = calculateInSampleSize(options, 840, 840);
+                    options.inSampleSize = 3;
+                    Bitmap bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath(),options);
+                    if (bitmap != null) {
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+                    }
+
+                  options.inJustDecodeBounds = false;
+                    options.inSampleSize = calculateInSampleSize(options, w, h);
                     bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath(), options);
-
-                    options.inJustDecodeBounds = false;
-                    options.inSampleSize = calculateInSampleSize(options, 840, 840);
-                    bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath(), options);
-
-
                     imagemPreview.setImageBitmap(bitmap);
+
                 }catch(Exception ex){
                     LOG.d(TAG , ex.getMessage());
                 }

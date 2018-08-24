@@ -62,6 +62,7 @@
             <uses-permission android:name="android.permission.CAMERA" />
             <uses-feature android:name="android.hardware.camera"
                 android:required="true" />
+            <uses-feature android:name="android.hardware.camera.autofocus" />
         </config-file>
         <config-file target="AndroidManifest.xml" parent="manifest" android:hardwareAccelerated="false">
         </config-file>
