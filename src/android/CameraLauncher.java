@@ -296,7 +296,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
             CameraWorker cameraWorker = new CameraWorker(cordova, getView(), webView, new OnEventListener<File>() {
                 @Override
                 public void onSuccess(File resultPhoto) {
-                    Toast.makeText(cordova.getActivity(), "SM_SUCCESS:::: " + resultPhoto.getAbsolutePath(), Toast.LENGTH_LONG).show();
+//                    Toast.makeText(cordova.getActivity(), "SM_SUCCESS:::: " + resultPhoto.getAbsolutePath(), Toast.LENGTH_LONG).show();
                     imageUri = new CordovaUri(FileProvider.getUriForFile(cordova.getActivity(),
                             applicationId + ".provider",
                             resultPhoto));
@@ -305,7 +305,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
                 @Override
                 public void onFailure(Exception e) {
-                    Toast.makeText(cordova.getActivity(), "MSG: " + e.getMessage(), Toast.LENGTH_LONG).show();
+//                    Toast.makeText(cordova.getActivity(), "MSG: " + e.getMessage(), Toast.LENGTH_LONG).show();
                     callbackContext.error("Illegal Argument Exception" + PluginResult.Status.ERROR);
                     PluginResult r = new PluginResult(PluginResult.Status.ERROR);
                     callbackContext.sendPluginResult(r);
@@ -397,9 +397,9 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
             GaleriaWorker galeriaWorker = new GaleriaWorker(cordova, getView(), webView, new OnEventListener<File>() {
                 @Override
                 public void onSuccess(File resultPhoto) {
-                    Toast.makeText(cordova.getActivity(), "SM_SUCCESS:::: " + resultPhoto.getAbsolutePath() + " ext:: " + getFileExtension(resultPhoto), Toast.LENGTH_LONG).show();
+//                    Toast.makeText(cordova.getActivity(), "SM_SUCCESS:::: " + resultPhoto.getAbsolutePath() + " ext:: " + getFileExtension(resultPhoto), Toast.LENGTH_LONG).show();
                     file = resultPhoto;
-                    mediaType =  (getFileExtension(resultPhoto) == JPEG_EXTENSION || getFileExtension(resultPhoto) == PNG_EXTENSION)? PICTURE : ALLMEDIA ;
+                    mediaType =  ("."+getFileExtension(resultPhoto) == JPEG_EXTENSION || "."+getFileExtension(resultPhoto) == PNG_EXTENSION)? PICTURE : ALLMEDIA ;
                     imageUri = new CordovaUri(FileProvider.getUriForFile(cordova.getActivity(),
                             applicationId + ".provider",
                             resultPhoto));
@@ -408,7 +408,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
                 @Override
                 public void onFailure(Exception e) {
-                    Toast.makeText(cordova.getActivity(), "MSG: " + e.getMessage(), Toast.LENGTH_LONG).show();
+//                    Toast.makeText(cordova.getActivity(), "MSG: " + e.getMessage(), Toast.LENGTH_LONG).show();
                     callbackContext.error("Illegal Argument Exception" + PluginResult.Status.ERROR);
                     PluginResult r = new PluginResult(PluginResult.Status.ERROR);
                     callbackContext.sendPluginResult(r);
@@ -430,7 +430,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         String fileName = file.getName();
         if(fileName.lastIndexOf(".") != -1 && fileName.lastIndexOf(".") != 0){
             String extensao = fileName.substring(fileName.lastIndexOf(".")+1);
-            return "."+extensao;
+            return extensao;
         }
         else return "";
     }

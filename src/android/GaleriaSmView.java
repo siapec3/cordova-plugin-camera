@@ -7,9 +7,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
+import android.graphics.pdf.PdfRenderer;
+import android.graphics.pdf.PdfRenderer.Page;
 import android.os.Build;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.support.v4.os.EnvironmentCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,6 +32,7 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +54,7 @@ public class GaleriaSmView extends GaleriaImagensInterface {
     private ListaDeArquivos arquivoSelecionado = null;
     private String diretorioAtivo = null;
     private File arquivoExibicao;
+    private BitmapFactory.Options options;
     private String root = null ;
     private GaleriaSmView galeriaContext;
     private PostImageFeedFragment mFragment;
@@ -58,6 +62,8 @@ public class GaleriaSmView extends GaleriaImagensInterface {
     public GaleriaSmView(CordovaInterface cordovaInterface, View viewGet, CordovaWebView viewWeb, GaleriaWorker worker, CallbackContext callbackContext) {
         super(cordovaInterface, viewGet, viewWeb, worker, callbackContext);
         onCreate();
+        options = new BitmapFactory.Options();
+        options.inMutable = true;
     }
 
     public void onCreate() {
@@ -145,14 +151,28 @@ public class GaleriaSmView extends GaleriaImagensInterface {
             super.onBackPressed();
         }
     }
+    private long mLastClickTime = 0;
+
+    Integer pageNumber = 1;
 
     private void previsualizacao(Context context, String file) {
         this.arquivoExibicao = new File(file);
-        Bitmap imagem = BitmapFactory.decodeFile(this.arquivoExibicao.getAbsolutePath());
-        if (imagem != null) {
+        if (arquivoExibicao != null) {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+                    options.inJustDecodeBounds = true;
+                    options.inSampleSize = 3;
+                    Bitmap bitmap = BitmapFactory.decodeFile(arquivoExibicao.getAbsolutePath(),options);
+                    if (bitmap != null) {
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outStream);
+                    }
+                    // mis-clicking prevention, using threshold of 1000 ms
+                    if (SystemClock.elapsedRealtime() - mLastClickTime < 2000){
+                        return;
+                    }
+                    mLastClickTime = SystemClock.elapsedRealtime();
                     previewDialog = new Dialog(activity, android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
                         @Override
                         public void onBackPressed() {
@@ -164,21 +184,61 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                             }
                         }
                     };
-                    previewLayout = new FrameLayout(activity);
-                    previewDialog.setContentView(previewLayout);
-                    previewDialog.setCancelable(false);
-                    previewDialog.show();
-                    ImageView imagemPreview = null;
-                    imagemPreview = new ImageView(activity);
-                    imagemPreview.setImageBitmap(BitmapFactory.decodeFile(arquivoExibicao.getAbsolutePath()));
+
+                    String fileName = arquivoExibicao.getName();
+                    String extensao = null;
+                    if(fileName.lastIndexOf(".") != -1 && fileName.lastIndexOf(".") != 0){
+                        extensao = fileName.substring(fileName.lastIndexOf(".")+1);
+                    }
+
+                    if (extensao.equalsIgnoreCase("png") || extensao.equalsIgnoreCase("gif") ||
+                            extensao.equalsIgnoreCase("jpg") || extensao.equalsIgnoreCase("jpeg")){
+                        ImageView imagemPreview = null;
+                        imagemPreview = new ImageView(activity);
+                        options.inJustDecodeBounds = false;
+                        options.inSampleSize = calculateInSampleSize(options, 500, 500);
+                        bitmap = BitmapFactory.decodeFile(arquivoExibicao.getAbsolutePath(), options);
+                        imagemPreview.setImageBitmap(bitmap);
+                        previewLayout = new FrameLayout(activity);
+                        previewDialog.setContentView(previewLayout);
+                        previewDialog.setCancelable(false);
+                        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                        previewLayout.setLayoutParams(layoutParams);
+                        previewLayout.addView(imagemPreview);
+                        enviarFoto();
+                        previewDialog.show();
+                    }else{
+                        changeBotoes(true);
+                    }
 //                   imagemPreview.setImageURI(Uri.fromFile(getFile()));
-                    FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                    previewLayout.setLayoutParams(layoutParams);
-                    previewLayout.addView(imagemPreview);
-                    enviarFoto();
+
                 }
             });
         }
+    }
+
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 
     private void enviarFoto() {
@@ -281,11 +341,13 @@ public class GaleriaSmView extends GaleriaImagensInterface {
         return arquivos;
     }
 
+
     public void entrarPasta(String arquivo, boolean diretorio) {
         if (diretorio) {
             changeBotoes(false);
             mostrarPastasDoDiretorio(criarArvore(arquivo));
         } else {
+
             previsualizacao(activity, arquivo);
         }
     }
@@ -316,19 +378,7 @@ public class GaleriaSmView extends GaleriaImagensInterface {
         LinearLayout layout = (LinearLayout) dialog.findViewById(R.id.botoes);
         if (exibir) {
             layout.setVisibility(View.VISIBLE);
-//            Button visualizar = (Button) dialog.findViewById(R.id.visualizar);
-//            Bitmap imagem = BitmapFactory.decodeFile(arquivoSelecionado.getMiniatura().getAbsolutePath());
-//            if (imagem != null) {
-//                visualizar.setVisibility(View.VISIBLE);
-//                visualizar.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        entrarPasta(arquivoSelecionado.getMiniatura());
-//                    }
-//                });
-//            } else {
-//                visualizar.setVisibility(View.INVISIBLE);
-//            }
+//
             Button selecionar = (Button) dialog.findViewById(R.id.selecionar);
             selecionar.setOnClickListener(new View.OnClickListener() {
                 @Override

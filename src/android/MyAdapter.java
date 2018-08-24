@@ -2,6 +2,7 @@ package smsgi.com.br.galeriasmview;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.os.SystemClock;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -98,15 +99,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     }
 
     private void formatarThumbnails(ViewHolder viewHolder, String formato){
-        if (formato.equals("doc") || formato.equals("docx") || formato.equals("odt")) {
+        if (formato.equals("doc") || formato.equals("docx")) {
             viewHolder.img.setImageResource(R.drawable.word);
-        } else if (formato.equals("xls") || formato.equals("xlsx") || formato.equals("ods")) {
+        } else if (formato.equals("xls") || formato.equals("xlsx")) {
             viewHolder.img.setImageResource(R.drawable.excel);
         } else if (formato.equals("pdf")) {
             viewHolder.img.setImageResource(R.drawable.pdf);
-        } else if (formato.equals("ppt") || formato.equals("pptx") || formato.equals("odp")) {
+        } else if (formato.equals("ppt") || formato.equals("pptx")) {
             viewHolder.img.setImageResource(R.drawable.ppt);
-        } else if (formato.equals("jpeg") || formato.equals("jpg") || formato.equals("png") || formato.equals("gif")) {
+        } else if (formato.equals("jpeg") || formato.equals("jpg")) {
             viewHolder.img.setImageResource(R.drawable.image_area);
         } else {
             viewHolder.img.setImageResource(R.drawable.document);

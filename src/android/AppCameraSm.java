@@ -146,19 +146,19 @@ public class AppCameraSm extends CustomLayout {
                 .setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         finish();
-                        if (newdialog != null && newdialog.isShowing()) {
-                            newdialog.dismiss();
-                            newdialog = null;
+                        if (preVisualizacaoDialog != null && preVisualizacaoDialog.isShowing()) {
+                            preVisualizacaoDialog.dismiss();
+                            preVisualizacaoDialog = null;
                         }
                     }
                 });
 //                .setNegativeButton("Excluir", new DialogInterface.OnClickListener() {
 //                    public void onClick(DialogInterface dialog, int id) {
 //                        tentarNovamente();
-//                        newdialog.cancel();
-//                        if (newdialog != null && newdialog.isShowing()) {
-//                            newdialog.dismiss();
-//                            newdialog = null;
+//                        preVisualizacaoDialog.cancel();
+//                        if (preVisualizacaoDialog != null && preVisualizacaoDialog.isShowing()) {
+//                            preVisualizacaoDialog.dismiss();
+//                            preVisualizacaoDialog = null;
 //                        }
 //                    }
 //                });
@@ -213,6 +213,11 @@ public class AppCameraSm extends CustomLayout {
     }
 
     public void finish(){
+
+        if (preVisualizacaoDialog != null && preVisualizacaoDialog.isShowing()) {
+            preVisualizacaoDialog.dismiss();
+            preVisualizacaoDialog = null;
+        }
 
         if (checkCameraHardware(activity)) {
             if (mCamera != null) {

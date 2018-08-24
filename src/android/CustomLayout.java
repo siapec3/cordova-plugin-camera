@@ -74,7 +74,7 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
     protected ImageView capturedImageHolder;
     protected FrameLayout.LayoutParams layoutParams;
     protected Dialog dialog;
-    protected Dialog newdialog;
+    protected Dialog preVisualizacaoDialog;
     protected ProgressBar progress;
     protected CallbackContext callbackContext;
     protected CameraWorker worker;
@@ -314,18 +314,19 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                 previewLayout = new FrameLayout(activity);
                 andamentoProcesso = processando();
                 previewLayout.addView(andamentoProcesso);
-                newdialog = new Dialog(activity, android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
+                preVisualizacaoDialog = new Dialog(activity, android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
                     @Override
                     public void onBackPressed() {
                         super.onBackPressed();
-                        dialogDeComandos();
+//                        dialogDeComandos();
+                        finish();
 
                     }
                 };
 
-                newdialog.setContentView(previewLayout);
-                newdialog.setCancelable(false);
-                newdialog.show();
+                preVisualizacaoDialog.setContentView(previewLayout);
+                preVisualizacaoDialog.setCancelable(false);
+                preVisualizacaoDialog.show();
                 ImageView imagemPreview = new ImageView(activity);
                 try {
                     options.inJustDecodeBounds = true;
@@ -390,7 +391,8 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
         linearLayout.addView(enviarFotoButton);
         enviarFotoButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                dialogDeComandos();
+//                dialogDeComandos();
+                finish();
             }
         });
         previewLayout.addView(linearLayout);
