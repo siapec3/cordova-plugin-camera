@@ -296,6 +296,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
             CameraWorker cameraWorker = new CameraWorker(cordova, getView(), webView, new OnEventListener<File>() {
                 @Override
                 public void onSuccess(File resultPhoto) {
+                    file = resultPhoto;
 //                    Toast.makeText(cordova.getActivity(), "SM_SUCCESS:::: " + resultPhoto.getAbsolutePath(), Toast.LENGTH_LONG).show();
                     imageUri = new CordovaUri(FileProvider.getUriForFile(cordova.getActivity(),
                             applicationId + ".provider",
@@ -535,6 +536,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         }
 
         // If sending base64 image back
+
         if (destType == DATA_URL) {
             bitmap = getScaledAndRotatedBitmap(sourcePath);
 

@@ -280,7 +280,7 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                     }
                     }
                 })
-                .setNegativeButton("Excluir", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Voltar", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface d, int id) {
                         if (getFile() != null) { getFile().delete(); }
                         if (previewDialog != null && previewDialog.isShowing()) {

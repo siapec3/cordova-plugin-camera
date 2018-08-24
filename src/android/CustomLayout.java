@@ -253,8 +253,6 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                 FileOutputStream fos = new FileOutputStream(file);
 
                 Bitmap realImage = BitmapFactory.decodeByteArray(data, 0, data.length);
-                options.inJustDecodeBounds = false;
-                options.inSampleSize = calculateInSampleSize(options, 640, 640);
 //                fos.write(data);
 
 //                Bitmap realImage = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
@@ -274,7 +272,7 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                 }
 
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                boolean bo = realImage.compress(Bitmap.CompressFormat.JPEG, 50, bos);
+                boolean bo = realImage.compress(Bitmap.CompressFormat.JPEG, 65, bos);
                 byte[] bitmapdata = bos.toByteArray();
 
                 fos.write(bitmapdata);
@@ -330,11 +328,11 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                 ImageView imagemPreview = new ImageView(activity);
                 try {
                     options.inJustDecodeBounds = true;
-                    options.inSampleSize = 3;
+                    options.inSampleSize = calculateInSampleSize(options, 840, 840);
                     bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath(), options);
 
                     options.inJustDecodeBounds = false;
-                    options.inSampleSize = calculateInSampleSize(options, 500, 500);
+                    options.inSampleSize = calculateInSampleSize(options, 840, 840);
                     bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath(), options);
 
 
@@ -448,7 +446,7 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
         // Create the cache directory if it doesn't exist
         cache.mkdirs();
         cache.getAbsolutePath();
-        // setFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"IMG_"+timeStamp+".jpg"));
+//         setFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"IMG_"+timeStamp+".jpg"));
         setFile(new File(cache.getAbsolutePath(), "IMG_" + timeStamp + ".jpg")); //Ira funcionar dessa forma mas para testar o formato da imagem preciso ver como fica
 
     }
