@@ -128,8 +128,8 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
             c = Camera.open();
             Camera.Parameters params = c.getParameters();
             List<Camera.Size> previewSizes = params.getSupportedPreviewSizes();
-//            params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-            params.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
+            params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+//            params.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
             params.setPictureFormat(ImageFormat.JPEG);
 //            params.setPictureSize(640, 480);
             // You need to choose the most appropriate previewSize for your app
@@ -275,7 +275,7 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                 }
 
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                boolean bo = realImage.compress(Bitmap.CompressFormat.JPEG, 80, bos);
+                boolean bo = realImage.compress(Bitmap.CompressFormat.JPEG, 70, bos);
                 byte[] bitmapdata = bos.toByteArray();
 
                 fos.write(bitmapdata);
@@ -312,6 +312,15 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                // otimizar em 70% a imagem em memória
+                ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+                options.inJustDecodeBounds = true;
+                options.inSampleSize = calculateInSampleSize(options, w, h);
+                Bitmap bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath(),options);
+                if (bitmap != null) {
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outStream);
+                }
+
                 previewLayout = new FrameLayout(activity);
                 andamentoProcesso = processando();
                 previewLayout.addView(andamentoProcesso);
@@ -330,17 +339,13 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                 preVisualizacaoDialog.show();
                 ImageView imagemPreview = new ImageView(activity);
                 try {
-                    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-                    options.inJustDecodeBounds = true;
-                    options.inSampleSize = 3;
-                    Bitmap bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath(),options);
-                    if (bitmap != null) {
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
-                    }
-
-                  options.inJustDecodeBounds = false;
+                    //ajustar a imagem para ser mostrada novamente
+                    options.inJustDecodeBounds = false;
                     options.inSampleSize = calculateInSampleSize(options, w, h);
                     bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath(), options);
+                    if (bitmap != null) {
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outStream);
+                    }
                     imagemPreview.setImageBitmap(bitmap);
 
                 }catch(Exception ex){
@@ -452,8 +457,8 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
         // Create the cache directory if it doesn't exist
         cache.mkdirs();
         cache.getAbsolutePath();
-//         setFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"IMG_"+timeStamp+".jpg"));
-        setFile(new File(cache.getAbsolutePath(), "IMG_" + timeStamp + ".jpg")); //Ira funcionar dessa forma mas para testar o formato da imagem preciso ver como fica
+         setFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"IMG_"+timeStamp+".jpg"));
+//        setFile(new File(cache.getAbsolutePath(), "IMG_" + timeStamp + ".jpg")); //Ira funcionar dessa forma mas para testar o formato da imagem preciso ver como fica
 
     }
 
