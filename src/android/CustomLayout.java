@@ -254,13 +254,12 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
             }
             try {
                 FileOutputStream fos = new FileOutputStream(file);
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
                 Bitmap realImage = BitmapFactory.decodeByteArray(data, 0, data.length);
-//                fos.write(data);
 
-//                Bitmap realImage = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-
-
+////                fos.write(data);
+//                Log.d("realImage", " compress: " + realImage.getByteCount());
                 ExifInterface exif = new ExifInterface(file.toString());
 
                 Log.d("Exif value", exif.getAttribute(ExifInterface.TAG_ORIENTATION));
@@ -274,14 +273,22 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                     realImage = rotate(realImage, 90);
                 }
 
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                boolean bo = realImage.compress(Bitmap.CompressFormat.JPEG, 70, bos);
+                if (realImage != null){
+                    realImage.compress(Bitmap.CompressFormat.JPEG, 80, bos);
+                }
+
+//              boolean bo = realImage.compress(Bitmap.CompressFormat.JPEG, 80, bos);
                 byte[] bitmapdata = bos.toByteArray();
 
                 fos.write(bitmapdata);
                 fos.close();
-                preVisualizacao(activity);
-                layoutPrincipal.removeAllViews();
+                if (android.os.Build.VERSION.SDK_INT >= 24) {
+                    preVisualizacao(activity);
+                    layoutPrincipal.removeAllViews();
+                }else{
+                    enviarFoto();
+                }
+
 //                worker.mCallBack.onSuccess(getFile());
             } catch (FileNotFoundException e) {
                 Log.d(TAG, "Arquivo nao encontrado " + e.getMessage());
@@ -316,9 +323,9 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                 ByteArrayOutputStream outStream = new ByteArrayOutputStream();
                 options.inJustDecodeBounds = true;
                 options.inSampleSize = calculateInSampleSize(options, w, h);
-                Bitmap bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath(),options);
+                Bitmap bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath());
                 if (bitmap != null) {
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outStream);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
                 }
 
                 previewLayout = new FrameLayout(activity);
@@ -328,8 +335,8 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                     @Override
                     public void onBackPressed() {
                         super.onBackPressed();
-//                        dialogDeComandos();
-                        finish();
+                        dialogDeComandos();
+//                        finalizar();
 
                     }
                 };
@@ -342,10 +349,7 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                     //ajustar a imagem para ser mostrada novamente
                     options.inJustDecodeBounds = false;
                     options.inSampleSize = calculateInSampleSize(options, w, h);
-                    bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath(), options);
-                    if (bitmap != null) {
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outStream);
-                    }
+                    bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath());
                     imagemPreview.setImageBitmap(bitmap);
 
                 }catch(Exception ex){
@@ -400,11 +404,15 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
         linearLayout.addView(enviarFotoButton);
         enviarFotoButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-//                dialogDeComandos();
-                finish();
+                dialogDeComandos();
             }
         });
-        previewLayout.addView(linearLayout);
+
+        if (android.os.Build.VERSION.SDK_INT >= 24) {
+            previewLayout.addView(linearLayout);
+        }else{
+            layoutPrincipal.addView(linearLayout);
+        }
     }
 
     protected abstract void barraDeComandosTopo();
@@ -457,8 +465,8 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
         // Create the cache directory if it doesn't exist
         cache.mkdirs();
         cache.getAbsolutePath();
-         setFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"IMG_"+timeStamp+".jpg"));
-//        setFile(new File(cache.getAbsolutePath(), "IMG_" + timeStamp + ".jpg")); //Ira funcionar dessa forma mas para testar o formato da imagem preciso ver como fica
+//         setFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"IMG_"+timeStamp+".jpg"));
+        setFile(new File(cache.getAbsolutePath(), "IMG_" + timeStamp + ".jpg")); //Ira funcionar dessa forma mas para testar o formato da imagem preciso ver como fica
 
     }
 

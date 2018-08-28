@@ -176,11 +176,11 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                     previewDialog = new Dialog(activity, android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
                         @Override
                         public void onBackPressed() {
-                            super.onBackPressed();
+//                            super.onBackPressed();
+                            if (getFile() != null) { getFile().delete(); }
                             if (previewDialog != null && previewDialog.isShowing()) {
                                 previewDialog.dismiss();
                                 previewDialog = null;
-                                arquivoExibicao = null;
                             }
                         }
                     };
@@ -192,26 +192,27 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                     }
 
                     if (extensao.equalsIgnoreCase("png") || extensao.equalsIgnoreCase("gif") ||
-                            extensao.equalsIgnoreCase("jpg") || extensao.equalsIgnoreCase("jpeg")){
-                        ImageView imagemPreview = null;
-                        imagemPreview = new ImageView(activity);
-                        options.inJustDecodeBounds = false;
-                        options.inSampleSize = calculateInSampleSize(options, 500, 500);
-                        bitmap = BitmapFactory.decodeFile(arquivoExibicao.getAbsolutePath(), options);
-                        imagemPreview.setImageBitmap(bitmap);
-                        previewLayout = new FrameLayout(activity);
-                        previewDialog.setContentView(previewLayout);
-                        previewDialog.setCancelable(false);
-                        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                        previewLayout.setLayoutParams(layoutParams);
-                        previewLayout.addView(imagemPreview);
-                        enviarFoto();
-                        previewDialog.show();
-                    }else{
+                            extensao.equalsIgnoreCase("jpg") || extensao.equalsIgnoreCase("jpeg") || extensao.equalsIgnoreCase("pdf")){
                         changeBotoes(true);
+//                        ImageView imagemPreview = null;
+//                        imagemPreview = new ImageView(activity);
+//                        options.inJustDecodeBounds = false;
+//                        options.inSampleSize = calculateInSampleSize(options, 640, 640);
+//                        bitmap = BitmapFactory.decodeFile(arquivoExibicao.getAbsolutePath(), options);
+//                        imagemPreview.setImageBitmap(bitmap);
+//                        previewLayout = new FrameLayout(activity);
+//                        previewDialog.setContentView(previewLayout);
+//                        previewDialog.setCancelable(false);
+//                        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+//                        previewLayout.setLayoutParams(layoutParams);
+//                        previewLayout.addView(imagemPreview);
+//                        enviarFoto();
+//                        previewDialog.show();
+                    } else if (extensao.equalsIgnoreCase("pdf")){
+                        changeBotoes(true);
+                    } else {
+                        dialogDeMensagem("Este tipo de arquivo "+ extensao +" não é suportado");
                     }
-//                   imagemPreview.setImageURI(Uri.fromFile(getFile()));
-
                 }
             });
         }
@@ -280,6 +281,23 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                     }
                     }
                 })
+                .setNegativeButton("Voltar", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface d, int id) {
+                        if (getFile() != null) { getFile().delete(); }
+                        if (previewDialog != null && previewDialog.isShowing()) {
+                            previewDialog.dismiss();
+                            previewDialog = null;
+                        }
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    protected void dialogDeMensagem(String mensagem){
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setMessage(mensagem)
+                .setCancelable(false)
                 .setNegativeButton("Voltar", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface d, int id) {
                         if (getFile() != null) { getFile().delete(); }

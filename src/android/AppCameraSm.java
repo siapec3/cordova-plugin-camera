@@ -141,11 +141,11 @@ public class AppCameraSm extends CustomLayout {
     @Override
     protected void dialogDeComandos(){
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setMessage("Deseja utilizar esta imagem?")
+        builder.setMessage("Confirme para utilizar esta imagem")
                 .setCancelable(false)
-                .setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        finish();
+                        finalizar();
                         if (preVisualizacaoDialog != null && preVisualizacaoDialog.isShowing()) {
                             preVisualizacaoDialog.dismiss();
                             preVisualizacaoDialog = null;
@@ -204,7 +204,7 @@ public class AppCameraSm extends CustomLayout {
         CustomLayout.confirm = criarImageButton("confirm", "button2");
         CustomLayout.confirm.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                finish();
+                finalizar();
             }
         });
 
@@ -212,7 +212,7 @@ public class AppCameraSm extends CustomLayout {
         layoutPrincipal.addView(linhaDeAcoes);
     }
 
-    public void finish(){
+    public void finalizar(){
 
         if (preVisualizacaoDialog != null && preVisualizacaoDialog.isShowing()) {
             preVisualizacaoDialog.dismiss();
