@@ -5,13 +5,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
+import android.graphics.Rect;
+import android.hardware.Camera.AutoFocusCallback;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by desenvolvimento10 on 28/06/18.
@@ -22,15 +27,19 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private static String TAG = "CameraPreview";
     private SurfaceHolder mHolder;
     private Camera mCamera;
+    private AutoFocusCallback mAutoFocusCallback;
     private Activity activity;
+    private boolean needToTakePic;
+    private OnFocusListener onFocusListener;
 
-    public CameraPreview(Context context, Camera camera) {
-        super(context);
-        this.activity = (Activity) context;
+    public CameraPreview(Activity activity, Context context, Camera camera) {
+        super(activity);
+        this.activity = activity;
         mCamera = camera;
         mHolder = getHolder();
         mHolder.addCallback(this);
         mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        this.onFocusListener = (OnFocusListener) context;
     }
 
     @Override
@@ -166,6 +175,66 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             mCamera.release();
             mCamera = null;
         }
+    }
 
+    /**
+     * Called from PreviewSurfaceView to set touch focus.
+     *
+     * @param - Rect - new area for auto focus
+     */
+    public void doTouchFocus(final Rect tfocusRect) {
+        try {
+            List<Camera.Area> focusList = new ArrayList<Camera.Area>();
+            Camera.Area focusArea = new Camera.Area(tfocusRect, 1000);
+            focusList.add(focusArea);
+
+            Camera.Parameters param = mCamera.getParameters();
+            param.setFocusAreas(focusList);
+            param.setMeteringAreas(focusList);
+            mCamera.setParameters(param);
+
+            mCamera.autoFocus(mAutoFocusCallback);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (isNeedToTakePic()) {
+            onFocusListener.onFocused();
+        }
+    }
+
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            float x = event.getX();
+            float y = event.getY();
+
+            Rect touchRect = new Rect(
+                    (int) (x - 100),
+                    (int) (y - 100),
+                    (int) (x + 100),
+                    (int) (y + 100));
+
+
+            final Rect targetFocusRect = new Rect(
+                    touchRect.left * 2000 / this.getWidth() - 1000,
+                    touchRect.top * 2000 / this.getHeight() - 1000,
+                    touchRect.right * 2000 / this.getWidth() - 1000,
+                    touchRect.bottom * 2000 / this.getHeight() - 1000);
+
+            doTouchFocus(targetFocusRect);
+        }
+
+        return false;
+    }
+
+    public boolean isNeedToTakePic() {
+        return needToTakePic;
+    }
+
+    public void setNeedToTakePic(boolean needToTakePic) {
+        this.needToTakePic = needToTakePic;
     }
 }

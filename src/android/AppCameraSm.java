@@ -25,7 +25,6 @@ import org.apache.cordova.PluginResult;
 /**
  * Created by desenvolvimento10 on 03/07/18.
  */
-
 public class AppCameraSm extends CustomLayout {
 
     protected final static String[] permissions = {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -43,11 +42,13 @@ public class AppCameraSm extends CustomLayout {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "0000000000000000000000000000011111111111111111111122222222222222222222222   onCreate: ????????????????????????????????????????????????????????");
 
     }
+
+
 
     @Override
     public void onDestroy() {
@@ -56,7 +57,6 @@ public class AppCameraSm extends CustomLayout {
         mCamera.stopPreview();
         mCamera = null;
     }
-
 
     public void cameraPrevisualizacao() {
 
@@ -82,9 +82,9 @@ public class AppCameraSm extends CustomLayout {
                 Context context = AppCameraSm.webView.getContext();
 
                 if (checkCameraHardware(activity)) {
-                    mCamera = getCameraInstance();
+                    mCamera = getCameraInstance(0);
                     mPreview = null;
-                    mPreview = new CameraPreview(activity, mCamera);
+                    mPreview = new CameraPreview(activity, AppCameraSm.this, mCamera);
                     layoutPrincipal.addView(mPreview);
 
 //                    linhaDeComandos();
@@ -109,6 +109,16 @@ public class AppCameraSm extends CustomLayout {
 //                linhaDeAcoes.setVisibility(View.VISIBLE);
             }
         });
+
+//        if (android.os.Build.VERSION.SDK_INT >= 24) {
+//            mCamera.autoFocus(new Camera.AutoFocusCallback(){
+//                @Override
+//                public void onAutoFocus(boolean success, Camera camera){
+//                    camera.takePicture(shutterCallback, );
+//                }
+//
+//            });
+//        }
     }
 
 
@@ -254,12 +264,12 @@ public class AppCameraSm extends CustomLayout {
                 if (mCamera != null) {
                     mCamera = null;
                 }
-                mCamera = getCameraInstance();
+                mCamera = getCameraInstance(0);
 
                 layoutPrincipal.removeAllViews();
                 capturedImageHolder = new ImageView(cordova.getActivity());
                 layoutPrincipal.addView(capturedImageHolder);
-                mPreview = new CameraPreview(activity, mCamera);
+                mPreview = new CameraPreview(activity, AppCameraSm.this, mCamera);
                 layoutPrincipal.addView(mPreview);
 //                linhaDeComandos();
                 botaoObturador();

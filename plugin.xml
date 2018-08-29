@@ -90,6 +90,7 @@
         <source-file src="src/android/CameraWorker.java" target-dir="src/smsgi/com/br/cameraapp" />
         <source-file src="src/android/CustomLayout.java" target-dir="src/smsgi/com/br/cameraapp" />
         <source-file src="src/android/OnEventListener.java" target-dir="src/smsgi/com/br/cameraapp" />
+        <source-file src="src/android/OnFocusListener.java" target-dir="src/smsgi/com/br/cameraapp" />
         <source-file src="src/android/Meta.java" target-dir="src/smsgi/com/br/cameraapp.reflect" />
 
         <!-- classes galeria customizada -->

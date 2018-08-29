@@ -6,22 +6,20 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
-import android.hardware.camera2.CaptureResult;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.util.LruCache;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -43,13 +42,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 
@@ -57,7 +54,7 @@ import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
  * Created by desenvolvimento10 on 03/07/18.
  */
 
-public abstract class CustomLayout extends AppCompatActivity implements CameraWorker.CameraCallBack {
+public abstract class CustomLayout extends AppCompatActivity implements CameraWorker.CameraCallBack, OnFocusListener {
 
     public static ImageButton captureButton;
     public static ImageButton confirm;
@@ -82,8 +79,8 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
     private FrameLayout previewLayout;
     private ProgressBar andamentoProcesso;
     private BitmapFactory.Options options;
-    private int w = 0;
-    private int h = 0;
+    protected int w = 0;
+    protected int h = 0;
     /**
      * @param cordovaInterface
      * @param viewGet
@@ -102,35 +99,47 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
 
     }
 
-    protected void mostrarObturador(){
-        linhaDeAcoes.setVisibility(View.INVISIBLE);
-        CustomLayout.captureButton.setVisibility(View.VISIBLE);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.d(TAG, "0000000000000000000000000000011111111111111111111122222222222222222222222   onCreate: ????????????????????????????????????????????????????????");
+
     }
 
-    protected void mostrarBarraDeFerramentas(){
-        linhaDeAcoes.setVisibility(View.VISIBLE);
-        CustomLayout.captureButton.setVisibility(View.INVISIBLE);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+        mCamera.stopPreview();
+        mCamera = null;
     }
 
-    protected void callbackErrorPluginCordova(){
-        callbackContext.error("Illegal Argument Exception" + PluginResult.Status.ERROR);
-        PluginResult r = new PluginResult(PluginResult.Status.ERROR);
-        callbackContext.sendPluginResult(r);
-        if (file.isFile())  file.delete(); else  Log.d(TAG, ">>>>>>>>>>>>>>>>  nenhum arquivo encontrado ");
-        worker.mCallBack.onFailure(new Exception("Imagem não selecionada"));
-        return;
+    @Override
+    public void onFocused() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mCamera.takePicture(null, null, mPicture);
+                mPreview.setNeedToTakePic(false);
+                captureButton.setEnabled(true);
+            }
+        }, 1500);
     }
 
     // Helper to be compile-time compatible with both Cordova 3.x and 4.x.
-    protected Camera getCameraInstance() {
+    @Override
+    public Camera getCameraInstance(int currentCameraId) {
         Camera c = null;
         try {
-            c = Camera.open();
+            c = Camera.open(currentCameraId);
             Camera.Parameters params = c.getParameters();
             List<Camera.Size> previewSizes = params.getSupportedPreviewSizes();
-            params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+            if (params.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+                params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+            }
 //            params.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
             params.setPictureFormat(ImageFormat.JPEG);
+
 //            params.setPictureSize(640, 480);
             // You need to choose the most appropriate previewSize for your app
 
@@ -149,6 +158,32 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
         }
         return c;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    protected void mostrarObturador(){
+        linhaDeAcoes.setVisibility(View.INVISIBLE);
+        CustomLayout.captureButton.setVisibility(View.VISIBLE);
+    }
+
+    protected void mostrarBarraDeFerramentas(){
+        linhaDeAcoes.setVisibility(View.VISIBLE);
+        CustomLayout.captureButton.setVisibility(View.INVISIBLE);
+    }
+
+    protected void callbackErrorPluginCordova(){
+        callbackContext.error("Illegal Argument Exception" + PluginResult.Status.ERROR);
+        PluginResult r = new PluginResult(PluginResult.Status.ERROR);
+        callbackContext.sendPluginResult(r);
+        if (file != null && file.isFile()){  getFile().delete(); } else { Log.d(TAG, ">>>>>>>>>>>>>>>>  nenhum arquivo encontrado "); }
+        worker.mCallBack.onFailure(new Exception("Imagem não selecionada"));
+        return;
+    }
+
+
 
     protected ImageButton criarImageButton(String nomeIcon, String nomeComponent) {
         ImageButton imageButton = new ImageButton(activity);
@@ -274,13 +309,14 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                 }
 
                 if (realImage != null){
-                    realImage.compress(Bitmap.CompressFormat.JPEG, 80, bos);
+                    realImage.compress(Bitmap.CompressFormat.JPEG, 70, bos);
                 }
 
 //              boolean bo = realImage.compress(Bitmap.CompressFormat.JPEG, 80, bos);
                 byte[] bitmapdata = bos.toByteArray();
 
                 fos.write(bitmapdata);
+                fos.flush();
                 fos.close();
                 if (android.os.Build.VERSION.SDK_INT >= 24) {
                     preVisualizacao(activity);
@@ -320,13 +356,10 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
             @Override
             public void run() {
                 // otimizar em 70% a imagem em memória
-                ByteArrayOutputStream outStream = new ByteArrayOutputStream();
                 options.inJustDecodeBounds = true;
                 options.inSampleSize = calculateInSampleSize(options, w, h);
                 Bitmap bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath());
-                if (bitmap != null) {
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
-                }
+
 
                 previewLayout = new FrameLayout(activity);
                 andamentoProcesso = processando();
@@ -452,22 +485,43 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
 
     @Override
     public void getOutputMediaFile(Integer type) {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        File cache = null;
-        // SD Card Mounted
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            cache = cordova.getActivity().getExternalCacheDir();
-        }
-        // Use internal storage
-        else {
-            cache = cordova.getActivity().getCacheDir();
-        }
-        // Create the cache directory if it doesn't exist
-        cache.mkdirs();
-        cache.getAbsolutePath();
-//         setFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"IMG_"+timeStamp+".jpg"));
-        setFile(new File(cache.getAbsolutePath(), "IMG_" + timeStamp + ".jpg")); //Ira funcionar dessa forma mas para testar o formato da imagem preciso ver como fica
+//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+//        File cache = null;
+//        // SD Card Mounted
+//        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+//            cache = cordova.getActivity().getExternalCacheDir();
+//        }
+//        // Use internal storage
+//        else {
+//            cache = cordova.getActivity().getCacheDir();
+//        }
+//        // Create the cache directory if it doesn't exist
+//        cache.mkdirs();
+//        cache.getAbsolutePath();
+//           setFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"Siapec3_"+timeStamp+".jpg"));
+//        setFile(new File(cache.getAbsolutePath(), "IMG_" + timeStamp + ".jpg")); //Ira funcionar dessa forma mas para testar o formato da imagem preciso ver como fica
 
+        File pictureFileDir = getDir();
+
+        if (!pictureFileDir.exists() && !pictureFileDir.mkdirs()) {
+            Log.d(CustomLayout.TAG, "Não foi possivel criar o diretório da imagem.");
+            Toast.makeText(activity, "Não foi possivel criar o diretório da imagem.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyymmddhhmmss");
+        String date = dateFormat.format(new Date());
+        String photoFile = "Siapec3_" + date + ".jpg";
+
+        String root = pictureFileDir.getPath() + File.separator ;
+
+        setFile(new File(root, photoFile));
+
+    }
+
+    private File getDir() {
+        File sdDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        return new File(sdDir, "CamSiapec3");
     }
 
     @Override
