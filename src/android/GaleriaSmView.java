@@ -61,6 +61,7 @@ public class GaleriaSmView extends GaleriaImagensInterface {
     private String root = null ;
     private GaleriaSmView galeriaContext;
     private PostImageFeedFragment mFragment;
+    private String extensao;
 
     public GaleriaSmView(CordovaInterface cordovaInterface, View viewGet, CordovaWebView viewWeb, GaleriaWorker worker, CallbackContext callbackContext) {
         super(cordovaInterface, viewGet, viewWeb, worker, callbackContext);
@@ -188,13 +189,13 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                     };
 
                     String fileName = arquivoExibicao.getName();
-                    String extensao = null;
+                    extensao = null;
                     if(fileName.lastIndexOf(".") != -1 && fileName.lastIndexOf(".") != 0){
                         extensao = fileName.substring(fileName.lastIndexOf(".")+1);
                     }
 
                     if (extensao.equalsIgnoreCase("png") || extensao.equalsIgnoreCase("gif") ||
-                            extensao.equalsIgnoreCase("jpg") || extensao.equalsIgnoreCase("jpeg") || extensao.equalsIgnoreCase("pdf")){
+                            extensao.equalsIgnoreCase("jpg") || extensao.equalsIgnoreCase("jpeg")){
 //                        changeBotoes(true);
                         ImageView imagemPreview = null;
                         imagemPreview = new ImageView(activity);
@@ -275,32 +276,37 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                         previewDialog = null;
                     }
                     if (dialog != null && dialog.isShowing()) {
+                        //criando arquivo em cache caso seja imagem
+                        File arqCache = new File(arquivoSelecionado.getMiniatura());
 
-                        File cache = new File(arquivoSelecionado.getMiniatura()+"_tmp");
-
-                        try {
-
-                            FileOutputStream fos = new FileOutputStream(cache);
-                            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-                            if (imagemAEnviar != null) {
-                                imagemAEnviar.compress(Bitmap.CompressFormat.JPEG, 70, outStream);
+                        //caso seja PDF não irá converter
+                        if (!extensao.equalsIgnoreCase("pdf")) {
+                            try {
+                                arqCache.createNewFile();
+                                FileOutputStream fos = new FileOutputStream(arqCache);
+                                ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+                                if (imagemAEnviar != null) {
+                                    imagemAEnviar.compress(Bitmap.CompressFormat.JPEG, 70, outStream);
+                                }
+                                byte[] bitmapdata = outStream.toByteArray();
+                                fos.write(bitmapdata);
+                                fos.flush();
+                                fos.close();
+                            } catch (FileNotFoundException e) {
+                                LOG.e(getClass().getSimpleName(), "Error writing bitmap", e);
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                            byte[] bitmapdata = outStream.toByteArray();
-                            fos.write(bitmapdata);
-                            fos.flush();
-                            fos.close();
-                        } catch (FileNotFoundException e) {
-                            LOG.e(getClass().getSimpleName(), "Error writing bitmap", e);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
 
-                        setFile(cache); //arquivo compactado
+
+                        }
+                        //pega o arquivo original caso PDF senão o arquivo cacheConvertido
+                        setFile(extensao.equalsIgnoreCase("pdf") ? new File(arquivoSelecionado.getMiniatura()) : arqCache); //arquivo compactado
                         dialog.dismiss();
                         dialog = null;
                         getView.setVisibility(View.VISIBLE);
                         worker.mCallBack.onSuccess(getFile());
-                        getFile().delete();
+//                        getFile().delete();
                     }
                     }
                 })
