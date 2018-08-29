@@ -106,6 +106,8 @@
 
         <source-file src="src/android/xml/camera_provider_paths.xml" target-dir="res/xml" />
 
+        <source-file src="src/android/raw/sound757.ogg" target-dir="res/raw" />
+
         <source-file src="src/android/xml/camera.xml" target-dir="res/drawable-anydpi" />
         <source-file src="src/android/xml/confirm.xml" target-dir="res/drawable-anydpi" />
         <source-file src="src/android/xml/obturador.xml" target-dir="res/drawable-anydpi" />
@@ -126,7 +128,7 @@
         <source-file src="src/android/xml/galeria/layout/activity_galeria_sm_view.xml" target-dir="res/layout" />
         
         <source-file src="src/android/xml/galeria/values/colors.xml" target-dir="res/values" />
-        
+
 
         <js-module src="www/CameraPopoverHandle.js" name="CameraPopoverHandle">
             <clobbers target="CameraPopoverHandle" />

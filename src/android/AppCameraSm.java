@@ -6,6 +6,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
@@ -21,6 +23,7 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 
+import com.ionicframework.siapec3mobile136142.R;
 
 /**
  * Created by desenvolvimento10 on 03/07/18.
@@ -104,7 +107,11 @@ public class AppCameraSm extends CustomLayout {
             @Override
             public void onClick(View view) {
                 captureButton.setVisibility(View.INVISIBLE);
+                SoundPool soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 100);
+                float volume = (float) 1.0;
+                soundPool.play(R.raw.sound757, volume, volume , 1,0,1f);
                 mCamera.takePicture(null, null, mPicture);
+
 //                preVisualizacao(activity);
 //                linhaDeAcoes.setVisibility(View.VISIBLE);
             }
