@@ -140,13 +140,13 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
 //            params.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
             params.setPictureFormat(ImageFormat.JPEG);
 
-//            params.setPictureSize(640, 480);
+//            params.setPictureSize(840, 480);
             // You need to choose the most appropriate previewSize for your app
 
             for (int i=0; i < previewSizes.size(); i++) {
                 Log.d(TAG, ">>>>>>>>>>>>>>>>  getCameraInstance Width x Heigth " + previewSizes.get(i).width +" x "+ previewSizes.get(i).height);
-                w = ( w < previewSizes.get(i).width && (previewSizes.get(i).width < 964))?  previewSizes.get(i).width : w ;
-                h = ( h < previewSizes.get(i).height && (previewSizes.get(i).height < 750))? previewSizes.get(i).height : h ;
+                w = ( w < previewSizes.get(i).width && (previewSizes.get(i).width <= 1024))?  previewSizes.get(i).width : w ;
+                h = ( h < previewSizes.get(i).height && (previewSizes.get(i).height <= 768))? previewSizes.get(i).height : h ;
             }
             Log.d(TAG, ">>>>>>>>>>>>>>>>  getCameraInstance " + w +"x"+ h);
             params.setPictureSize(w, h);
@@ -309,7 +309,7 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                 }
 
                 if (realImage != null){
-                    realImage.compress(Bitmap.CompressFormat.JPEG, 70, bos);
+                    realImage.compress(Bitmap.CompressFormat.JPEG, 80, bos);
                 }
 
 //              boolean bo = realImage.compress(Bitmap.CompressFormat.JPEG, 80, bos);
@@ -382,7 +382,7 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
                     //ajustar a imagem para ser mostrada novamente
                     options.inJustDecodeBounds = false;
                     options.inSampleSize = calculateInSampleSize(options, w, h);
-                    bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath());
+                    bitmap = BitmapFactory.decodeFile(getFile().getAbsolutePath(), options);
                     imagemPreview.setImageBitmap(bitmap);
 
                 }catch(Exception ex){
@@ -447,6 +447,8 @@ public abstract class CustomLayout extends AppCompatActivity implements CameraWo
             layoutPrincipal.addView(linearLayout);
         }
     }
+
+
 
     protected abstract void barraDeComandosTopo();
 

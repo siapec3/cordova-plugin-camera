@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
@@ -100,16 +101,20 @@ public class AppCameraSm extends CustomLayout {
         });
     }
 
-
+//    private void soundSetup(){
+//        SoundPool soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 100);
+//        float volume = (float) 1.0;
+//        soundPool.play(R.raw.sound757, volume, volume , 1,0,1f);
+//    }
 
     public void onClickFoto(ImageView button) {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 captureButton.setVisibility(View.INVISIBLE);
-                SoundPool soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 100);
-                float volume = (float) 1.0;
-                soundPool.play(R.raw.sound757, volume, volume , 1,0,1f);
+
+                MediaPlayer mp = MediaPlayer.create(activity, R.raw.sound757);
+                mp.start();
                 mCamera.takePicture(null, null, mPicture);
 
 //                preVisualizacao(activity);

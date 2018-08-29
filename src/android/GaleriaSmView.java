@@ -28,10 +28,15 @@ import com.ionicframework.siapec3mobile136142.R;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.LOG;
 import org.apache.cordova.PluginResult;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -152,6 +157,7 @@ public class GaleriaSmView extends GaleriaImagensInterface {
     private long mLastClickTime = 0;
 
     Integer pageNumber = 1;
+    Bitmap imagemAEnviar;
 
     private void previsualizacao(Context context, String file) {
         this.arquivoExibicao = new File(file);
@@ -159,13 +165,11 @@ public class GaleriaSmView extends GaleriaImagensInterface {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
                     options.inJustDecodeBounds = true;
                     options.inSampleSize = 3;
-                    Bitmap bitmap = BitmapFactory.decodeFile(arquivoExibicao.getAbsolutePath(),options);
-                    if (bitmap != null) {
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outStream);
-                    }
+                    imagemAEnviar = BitmapFactory.decodeFile(arquivoExibicao.getAbsolutePath(),options);
+
                     // mis-clicking prevention, using threshold of 1000 ms
                     if (SystemClock.elapsedRealtime() - mLastClickTime < 2000){
                         return;
@@ -196,8 +200,8 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                         imagemPreview = new ImageView(activity);
                         options.inJustDecodeBounds = false;
                         options.inSampleSize = calculateInSampleSize(options, 840, 840);
-                        bitmap = BitmapFactory.decodeFile(arquivoExibicao.getAbsolutePath(), options);
-                        imagemPreview.setImageBitmap(bitmap);
+                        imagemAEnviar = BitmapFactory.decodeFile(arquivoExibicao.getAbsolutePath(), options);
+                        imagemPreview.setImageBitmap(imagemAEnviar);
                         previewLayout = new FrameLayout(activity);
                         previewDialog.setContentView(previewLayout);
                         previewDialog.setCancelable(false);
@@ -271,11 +275,32 @@ public class GaleriaSmView extends GaleriaImagensInterface {
                         previewDialog = null;
                     }
                     if (dialog != null && dialog.isShowing()) {
-                        setFile(new File(arquivoSelecionado.getMiniatura()));
+
+                        File cache = new File(arquivoSelecionado.getMiniatura()+"_tmp");
+
+                        try {
+
+                            FileOutputStream fos = new FileOutputStream(cache);
+                            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+                            if (imagemAEnviar != null) {
+                                imagemAEnviar.compress(Bitmap.CompressFormat.JPEG, 70, outStream);
+                            }
+                            byte[] bitmapdata = outStream.toByteArray();
+                            fos.write(bitmapdata);
+                            fos.flush();
+                            fos.close();
+                        } catch (FileNotFoundException e) {
+                            LOG.e(getClass().getSimpleName(), "Error writing bitmap", e);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        setFile(cache); //arquivo compactado
                         dialog.dismiss();
                         dialog = null;
                         getView.setVisibility(View.VISIBLE);
                         worker.mCallBack.onSuccess(getFile());
+                        getFile().delete();
                     }
                     }
                 })
