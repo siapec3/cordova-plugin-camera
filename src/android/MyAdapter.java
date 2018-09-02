@@ -126,10 +126,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         return new OnClickListener() {
             @Override
             public void onClick(View view) {
-                galeriaSm.setArquivoSelecionado(galleryList.get(Integer.valueOf(view.getTag().toString())));
-                if (galleryList.get(Integer.valueOf(view.getTag().toString())).getMiniatura() != null) {
-                    galeriaSm.setArquivoSelecionado(galleryList.get(Integer.valueOf(view.getTag().toString())));
-                    galeriaSm.entrarPasta(galleryList.get(Integer.valueOf(view.getTag().toString())).getMiniatura(), galleryList.get(Integer.valueOf(view.getTag().toString())).isDiretorio());
+                marcarSelecionado((int) Integer.valueOf(view.getTag().toString()));
+                galeriaSm.setArquivoSelecionado(galleryList.get( Integer.valueOf(view.getTag().toString())));
+                if (galleryList.get( Integer.valueOf(view.getTag().toString())).isDiretorio()) {
+                    galeriaSm.entrarPasta(galleryList.get( Integer.valueOf(view.getTag().toString())).getMiniatura(), galleryList.get(Integer.valueOf(view.getTag().toString())).isDiretorio());
+                } else {
+                    galeriaSm.setArquivoSelecionado(galleryList.get( Integer.valueOf(view.getTag().toString())));
+                    notifyDataSetChanged();
+                    galeriaSm.changeBotoes(true);
                 }
             }
         };

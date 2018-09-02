@@ -196,21 +196,21 @@ public class GaleriaSmView extends GaleriaImagensInterface {
 
                     if (extensao.equalsIgnoreCase("png") || extensao.equalsIgnoreCase("gif") ||
                             extensao.equalsIgnoreCase("jpg") || extensao.equalsIgnoreCase("jpeg")){
-//                        changeBotoes(true);
-                        ImageView imagemPreview = null;
-                        imagemPreview = new ImageView(activity);
-                        options.inJustDecodeBounds = false;
-                        options.inSampleSize = calculateInSampleSize(options, 840, 840);
-                        imagemAEnviar = BitmapFactory.decodeFile(arquivoExibicao.getAbsolutePath(), options);
-                        imagemPreview.setImageBitmap(imagemAEnviar);
-                        previewLayout = new FrameLayout(activity);
-                        previewDialog.setContentView(previewLayout);
-                        previewDialog.setCancelable(false);
-                        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                        previewLayout.setLayoutParams(layoutParams);
-                        previewLayout.addView(imagemPreview);
-                        enviarFoto();
-                        previewDialog.show();
+                        changeBotoes(true);
+//                        ImageView imagemPreview = null;
+//                        imagemPreview = new ImageView(activity);
+//                        options.inJustDecodeBounds = false;
+//                        options.inSampleSize = calculateInSampleSize(options, 840, 840);
+//                        imagemAEnviar = BitmapFactory.decodeFile(arquivoExibicao.getAbsolutePath(), options);
+//                        imagemPreview.setImageBitmap(imagemAEnviar);
+//                        previewLayout = new FrameLayout(activity);
+//                        previewDialog.setContentView(previewLayout);
+//                        previewDialog.setCancelable(false);
+//                        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+//                        previewLayout.setLayoutParams(layoutParams);
+//                        previewLayout.addView(imagemPreview);
+//                        enviarFoto();
+//                        previewDialog.show();
                     } else if (extensao.equalsIgnoreCase("pdf")){
                         changeBotoes(true);
                     } else {
